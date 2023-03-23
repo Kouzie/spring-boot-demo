@@ -1,0 +1,6 @@
+dependencies {
+// s3
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.231'
+    implementation 'io.minio:minio:7.1.4'
+}

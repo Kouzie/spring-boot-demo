@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'io.nats:jnats:2.16.0'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+}

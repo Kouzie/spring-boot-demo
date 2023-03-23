@@ -1,0 +1,321 @@
+{
+	"info": {
+		"_postman_id": "8da56b69-6c74-4dfa-871d-577e275a2523",
+		"name": "test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12418435"
+	},
+	"item": [
+		{
+			"name": "map struct",
+			"item": [
+				{
+					"name": "Get Car",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/car/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"car",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Car",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"carId\": 1,\n    \"make\": \"Hyundai\",\n    \"seatCount\": 4,\n    \"type\": \"SEDAN\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/car",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"car"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Car",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"carId\": 1,\n    \"make\": \"KIA\",\n    \"seatCount\": 4,\n    \"type\": \"SUV\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/car/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"car",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "request param",
+			"item": [
+				{
+					"name": "zone date UTC",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/request/zone-date/utc?zdt=2023-03-22T11:23:34.001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"request",
+								"zone-date",
+								"utc"
+							],
+							"query": [
+								{
+									"key": "zdt",
+									"value": "2023-03-22T11:23:34.001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "zone date UTC zulu",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/request/zone-date/utc?zdt=2023-03-22T11:23:34.001Z",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"request",
+								"zone-date",
+								"utc"
+							],
+							"query": [
+								{
+									"key": "zdt",
+									"value": "2023-03-22T11:23:34.001Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "zone date UTC +09",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/request/zone-date/utc?zdt=2023-03-22T11:23:34.001%2B09:00",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"request",
+								"zone-date",
+								"utc"
+							],
+							"query": [
+								{
+									"key": "zdt",
+									"value": "2023-03-22T11:23:34.001%2B09:00"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "zone date param",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/request/zone-date/param?beginDate=2023-03-22T11:23:34.001%2B09:00&endingDate=2023-03-25T11:23:34&title=kouzie&type=name",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"request",
+								"zone-date",
+								"param"
+							],
+							"query": [
+								{
+									"key": "beginDate",
+									"value": "2023-03-22T11:23:34.001%2B09:00"
+								},
+								{
+									"key": "endingDate",
+									"value": "2023-03-25T11:23:34"
+								},
+								{
+									"key": "title",
+									"value": "kouzie"
+								},
+								{
+									"key": "type",
+									"value": "name"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "alias param",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/request/alias/param?my-name=kouzie",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"request",
+								"alias",
+								"param"
+							],
+							"query": [
+								{
+									"key": "my-name",
+									"value": "kouzie"
+								},
+								{
+									"key": "myName",
+									"value": "kouzie",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

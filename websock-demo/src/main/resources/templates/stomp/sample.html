@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Your First WebSocket!</title>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+</head>
+
+<body>
+<script type="text/javascript">
+    var wsUri = "ws://127.0.0.1:8080/websocket";
+    var stompClient;
+    var output;
+    var textID
+
+    function init() {
+        output = document.getElementById("output");
+        textID = document.getElementById("textID");
+    }
+
+    function connect() {
+        stompClient = Stomp.client(wsUri);
+        stompClient.connect({}, function (frame) {
+            onOpen();
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/greetings', function (greeting) {
+                onMessage(JSON.parse(greeting.body).content);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        onClose();
+        console.log("Disconnected");
+    }
+
+    function send_message() {
+        var message = textID.value;
+        writeToScreen("Message Sent: " + message);
+        stompClient.send("/app/message", {}, JSON.stringify({'message': message}));
+    }
+
+    function onOpen() {
+        writeToScreen("Connected to Endpoint!");
+    }
+
+    function onClose() {
+        writeToScreen("Close from Endpoint!");
+    }
+
+    function onMessage(message) {
+        writeToScreen("Message Received: " + message);
+    }
+
+    function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+    }
+
+    window.addEventListener("load", init, false);
+
+</script>
+<h1 style="text-align: center;">Hello World WebSocket Client</h1>
+<br>
+<div style="text-align: center;">
+    <form action="">
+        <input onclick="connect()" value="Connect" type="button">
+        <input onclick="send_message()" value="Send" type="button">
+        <input id="textID" name="message" value="Hello WebSocket!" type="text"><br>
+    </form>
+</div>
+<div id="output"></div>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+configure([project(':admin-demo:customer'), project(':admin-demo:store')]) {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'de.codecentric:spring-boot-admin-starter-client:2.6.6'
+    }
+}
+
+configure(project(':admin-demo:boot-admin')) {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'de.codecentric:spring-boot-admin-starter-server:2.6.6'
+    }
+}
