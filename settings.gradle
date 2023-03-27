@@ -14,4 +14,5 @@ include 'admin-demo:boot-admin'
 include 'admin-demo:customer'
 include 'admin-demo:store'
 include 'minio-demo'
+include 'jpa-demo'
 

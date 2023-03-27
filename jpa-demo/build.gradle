@@ -1,0 +1,13 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.29'
+    implementation "com.querydsl:querydsl-jpa"
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt::jpa")
+    testRuntimeOnly 'com.h2database:h2' // 테스트시엔 h2 사용
+
+    // random 문자열 생성
+    implementation 'com.thedeanda:lorem:2.1'
+}
