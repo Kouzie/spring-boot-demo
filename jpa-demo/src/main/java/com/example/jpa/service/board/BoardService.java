@@ -25,4 +25,9 @@ public class BoardService {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Not Found board, id:" + id));
     }
+
+    @Transactional
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
 }

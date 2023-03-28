@@ -7,34 +7,33 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Access(AccessType.FIELD)
 @Entity
 @Table(name = "purchase_order")
-@Access(AccessType.FIELD)
 public class Order {
 
     @EmbeddedId
     private OrderId number;
 
-    @Embedded
-    private Orderer orderer;
-
+//    @Embedded
+//    private Orderer orderer;
+//
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "order_line", joinColumns = @JoinColumn(name = "order_number"))
-    @OrderColumn(name = "line_idx")
     private List<OrderLine> orderLines;
 
-    @Embedded
-    private ShippingInfo shippingInfo;
-
-    @Column(name = "state")
-    @Enumerated(EnumType.STRING)
-    private OrderState state;
-
-    @Column(name = "order_date")
-    private LocalDateTime orderDate;
-
-    @Version
-    private long version;
+//    @Embedded
+//    private ShippingInfo shippingInfo;
+//
+//    @Column(name = "state")
+//    @Enumerated(EnumType.STRING)
+//    private OrderState state;
+//
+//    @Column(name = "order_date")
+//    private LocalDateTime orderDate;
+//
+//    @Version
+//    private long version;
 }
 /*
 create table order_line

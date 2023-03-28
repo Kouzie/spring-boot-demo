@@ -1,15 +1,9 @@
 package com.example.jpa.model.baord;
 
-import com.example.jpa.JpaDempApplication;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
-import org.apache.tomcat.util.compat.JrePlatform;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,17 +25,20 @@ public class Board {
     private String writer;
     private String content;
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime regdate;
     @UpdateTimestamp
     private LocalDateTime updatedate;
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "bno")
-    @OrderColumn()
     private List<Reply> replies;
 
-    @OneToOne(mappedBy = "board", cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = {CascadeType.PERSIST}, orphanRemoval = true)
+    @JoinColumn(name = "bno")
+    private List<Attachment> attachments; // 첨부파일
+
+    @OneToOne(mappedBy = "board", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Thumbnail thumbnail;
 
     public static Board random() {
@@ -51,10 +48,19 @@ public class Board {
         board.content = lorem.getWords(10);
         board.thumbnail = new Thumbnail("https://picsum.photos/200/300", board);
         board.replies = new ArrayList<>();
-        for (int i = 0; i < random.nextInt(3); i++) {
+        for (int i = 0; i < random.nextInt(3) + 1; i++) {
             board.replies.add(new Reply(lorem.getName(), lorem.getWords(3)));
         }
+        board.attachments = new ArrayList<>();
+        for (int i = 0; i < random.nextInt(3) + 1; i++) {
+            board.attachments.add(new Attachment("https://picsum.photos/200/300"));
+        }
         return board;
+    }
+
+    public void testOrphan() {
+        this.replies.clear();
+        this.attachments.clear();
     }
 }
 /*

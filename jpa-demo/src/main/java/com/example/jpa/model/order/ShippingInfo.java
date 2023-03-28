@@ -12,9 +12,9 @@ public class ShippingInfo {
     })
     private Address address;
 
-    @Column(name = "shipping_message")
-    private String message;
-
     @Embedded
     private Receiver receiver;
+
+    @Column(name = "shipping_message")
+    private String message;
 }

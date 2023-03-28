@@ -1,4 +1,4 @@
-package com.example.jpa.controller.board;
+package com.example.jpa.controller.order;
 
 import com.example.jpa.model.baord.Board;
 import com.example.jpa.model.id.OrderId;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
     private final OrderService orderService;
 
-    @GetMapping("/{id}")
-    public Order getBoardById(@PathVariable String id) {
-        return orderService.findById(new OrderId(id));
-    }
+//    @GetMapping("/{id}")
+//    public Order getBoardById(@PathVariable String id) {
+//        return orderService.findById(new OrderId(id));
+//    }
 }
