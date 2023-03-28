@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="alert alert-danger" role="alert">
+            <h2>Sorry, you do not have permission to view this page.</h2>
+            Click login at <a th:href="@{/auth/login_demo}"></a>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form method="get" action="/auth/logout_demo">
+            <h3>LOGOUT</h3>
+            <!--<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
+            <button type="submit" class="btn">Log out</button>
+        </form>
+    </div>
+</div>
+</html>

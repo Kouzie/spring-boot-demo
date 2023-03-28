@@ -1,0 +1,18 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2' // 테스트시엔 h2 사용
+
+    // session security 테스트용
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // thymleaf sec 사용
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
+    // random 문자열 생성
+    implementation 'com.thedeanda:lorem:2.1'
+
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5',
+            // Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
+            //'org.bouncycastle:bcprov-jdk15on:1.70',
+            'io.jsonwebtoken:jjwt-jackson:0.11.5' // or 'io.jsonwebtoken:jjwt-gson:0.11.5' for gson
+}
