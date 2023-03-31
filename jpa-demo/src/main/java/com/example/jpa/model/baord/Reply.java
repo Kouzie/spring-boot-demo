@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tbl_replies")
 @EqualsAndHashCode
-@ToString(exclude = "board")
 public class Reply {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
