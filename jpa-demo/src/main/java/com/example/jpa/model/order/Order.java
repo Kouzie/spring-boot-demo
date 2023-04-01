@@ -4,7 +4,6 @@ package com.example.jpa.model.order;
 import com.example.jpa.model.id.OrderId;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Access(AccessType.FIELD)
@@ -32,8 +31,8 @@ public class Order {
 //    @Column(name = "order_date")
 //    private LocalDateTime orderDate;
 //
-//    @Version
-//    private long version;
+    @Version
+    private long version;
 }
 /*
 create table order_line

@@ -1,5 +1,6 @@
 package com.example.jpa.model.baord;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
@@ -30,16 +31,21 @@ public class Board {
     @UpdateTimestamp
     private LocalDateTime updatedate;
 
+    @JsonIgnore
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "bno")
     private List<Reply> replies;
 
+    @JsonIgnore
     @OneToMany(cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "bno")
     private List<Attachment> attachments; // 첨부파일
 
     @OneToOne(mappedBy = "board", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Thumbnail thumbnail;
+
+    @Version
+    private Long version;
 
     public static Board random() {
         Board board = new Board();
@@ -58,9 +64,16 @@ public class Board {
         return board;
     }
 
+    @JsonIgnore
     public void testOrphan() {
         this.replies.clear();
         this.attachments.clear();
+    }
+
+    @JsonIgnore
+    public void update() {
+        this.title = lorem.getTitle(1);
+        this.content = lorem.getWords(10);
     }
 }
 /*

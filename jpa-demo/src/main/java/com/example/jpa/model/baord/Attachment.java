@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "attachment")
+@Table(name = "tbl_attachment")
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

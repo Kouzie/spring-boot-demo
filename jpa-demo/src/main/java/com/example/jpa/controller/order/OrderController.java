@@ -1,13 +1,7 @@
 package com.example.jpa.controller.order;
 
-import com.example.jpa.model.baord.Board;
-import com.example.jpa.model.id.OrderId;
-import com.example.jpa.model.order.Order;
-import com.example.jpa.service.board.BoardService;
 import com.example.jpa.service.order.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

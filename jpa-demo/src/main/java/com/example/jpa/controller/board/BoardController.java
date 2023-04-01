@@ -1,16 +1,22 @@
 package com.example.jpa.controller.board;
 
 import com.example.jpa.model.baord.Board;
-import com.example.jpa.repository.board.BoardRepository;
 import com.example.jpa.service.board.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/boards")
 @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+
+    @GetMapping
+    public List<Board> getAll() {
+        return boardService.findAll();
+    }
 
     @GetMapping("/{id}")
     public Board getBoardById(@PathVariable Long id) {
@@ -22,6 +28,12 @@ public class BoardController {
     public Board addRandomBoard() {
         Board board = Board.random();
         return boardService.save(board);
+    }
+
+    @PatchMapping("/{id}")
+    public Board updateBoard(@PathVariable Long id) {
+        Board board = boardService.updateBoard(id);
+        return board;
     }
 
     @DeleteMapping("/{id}")
