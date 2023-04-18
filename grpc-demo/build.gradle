@@ -1,2 +1,66 @@
-dependencies {
+plugins {
+    id 'com.google.protobuf' version '0.9.1'
 }
+
+def protobufVersion = "3.21.7"
+def grpcVersion = "1.54.1"
+
+subprojects {
+    apply plugin: 'com.google.protobuf'
+    protobuf {
+        protoc {
+            artifact = "com.google.protobuf:protoc:${protobufVersion}"
+        }
+        plugins {
+            grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+        }
+        generateProtoTasks {
+            all()*.plugins {
+                grpc {}
+            }
+        }
+    }
+    dependencies {
+        runtimeOnly "io.grpc:grpc-netty-shaded:${grpcVersion}"
+        implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+        implementation "io.grpc:grpc-stub:${grpcVersion}"
+        implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+    }
+}
+
+configure([project(":grpc-demo:grpc-client"), project(":grpc-demo:grpc-server")]) {
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation project(":grpc-demo:common")
+    }
+}
+
+/*
+protobuf {
+    generatedFilesBaseDir = "$projectDir/src/"
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    plugins {
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
+    }
+    generateProtoTasks {
+        ofSourceSet('main').each { task ->
+            task.builtins {
+                java {
+                    outputSubDir = 'protoGen'
+                }
+            }
+            task.plugins {
+                grpc {
+                    outputSubDir = 'protoGen'
+                }
+            }
+        }
+    }
+    task cleanProtoGen {
+        doFirst { delete("$projectDir/src/main/protoGen") }
+    }
+    clean.dependsOn cleanProtoGen
+}*/
