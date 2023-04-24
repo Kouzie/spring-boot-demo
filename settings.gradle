@@ -20,4 +20,6 @@ include 'minio-demo'
 include 'jpa-demo'
 include 'swagger-demo'
 include 'security-demo'
+include 'kafka-demo'
+include 'kafka-demo:kafka-clients'
 
