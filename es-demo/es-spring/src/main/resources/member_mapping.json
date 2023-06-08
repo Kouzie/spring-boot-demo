@@ -1,0 +1,19 @@
+{
+  "_doc": {
+    "properties": {
+      "_class": {
+        "type": "keyword",
+        "index": false,
+        "doc_values": false
+      },
+      "id": {
+        "type": "keyword",
+        "index": true
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "standard"
+      }
+    }
+  }
+}

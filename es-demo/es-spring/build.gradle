@@ -1,0 +1,4 @@
+dependencies {
+    //implementation 'org.springframework.data:spring-data-elasticsearch:3.2.13.RELEASE'
+    implementation 'org.springframework.data:spring-data-elasticsearch'
+}

@@ -22,4 +22,7 @@ include 'swagger-demo'
 include 'security-demo'
 include 'kafka-demo'
 include 'kafka-demo:kafka-clients'
-
+include 'kafka-demo:kafka-spring'
+include 'es-demo'
+include 'es-demo:es-spring'
+include 'es-demo:es-client'
