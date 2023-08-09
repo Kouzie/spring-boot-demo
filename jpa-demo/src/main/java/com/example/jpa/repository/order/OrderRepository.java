@@ -2,7 +2,30 @@ package com.example.jpa.repository.order;
 
 import com.example.jpa.model.id.OrderId;
 import com.example.jpa.model.order.Order;
+import com.example.jpa.model.order.OrderState;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import javax.persistence.LockModeType;
+import java.util.List;
+import java.util.Optional;
+
 public interface OrderRepository extends CrudRepository<Order, OrderId> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT o FROM Order o WHERE o.orderId = :orderId")
+    Optional<Order> findByIdPessimistic(OrderId orderId);
+
+    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
+    @Query("SELECT o FROM Order o WHERE o.orderId = :orderId")
+    Optional<Order> findByIdOptimistic(OrderId orderId);
+
+    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
+    @Query("SELECT o FROM Order o WHERE o.state = :state")
+    List<Order> findAllByOrderStateOptimistic(OrderState state);
+
+    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    @Query("SELECT o FROM Order o WHERE o.state = :state")
+    List<Order> findAllByOrderStatePessimistic(OrderState state);
+
 }

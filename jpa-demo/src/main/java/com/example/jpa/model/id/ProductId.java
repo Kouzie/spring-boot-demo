@@ -11,4 +11,11 @@ import java.io.Serializable;
 public class ProductId implements Serializable {
     @Column(name = "product_id")
     private String id;
+
+    protected ProductId() {
+    }
+
+    public ProductId(String id) {
+        this.id = id;
+    }
 }

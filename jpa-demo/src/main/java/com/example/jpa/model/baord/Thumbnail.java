@@ -19,11 +19,13 @@ public class Thumbnail {
 
     @CreationTimestamp
     private LocalDateTime regdate;
+
     @UpdateTimestamp
     private LocalDateTime updatedate;
 
     @JsonIgnore
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "my_bno")
     private Board board;
 
     public Thumbnail(String path, Board board) {

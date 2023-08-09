@@ -52,7 +52,7 @@ public class Board {
         board.title = lorem.getTitle(1);
         board.writer = lorem.getName();
         board.content = lorem.getWords(10);
-        board.thumbnail = new Thumbnail("https://picsum.photos/200/300", board);
+//        board.thumbnail = new Thumbnail("https://picsum.photos/200/300", board);
         board.replies = new ArrayList<>();
         for (int i = 0; i < random.nextInt(3) + 1; i++) {
             board.replies.add(new Reply(lorem.getName(), lorem.getWords(3)));

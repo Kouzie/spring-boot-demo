@@ -1,38 +1,72 @@
 package com.example.jpa.model.order;
 
 
+import com.example.jpa.dto.OrderDto;
 import com.example.jpa.model.id.OrderId;
+import com.example.jpa.model.id.ProductId;
+import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import static com.example.jpa.JpaDempApplication.random;
+
+@Getter
 @Access(AccessType.FIELD)
 @Entity
 @Table(name = "purchase_order")
 public class Order {
 
     @EmbeddedId
-    private OrderId number;
+    private OrderId orderId;
 
 //    @Embedded
 //    private Orderer orderer;
-//
+
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "order_line", joinColumns = @JoinColumn(name = "order_number"))
     private List<OrderLine> orderLines;
 
 //    @Embedded
 //    private ShippingInfo shippingInfo;
-//
-//    @Column(name = "state")
-//    @Enumerated(EnumType.STRING)
-//    private OrderState state;
-//
+
+    @Column(name = "state")
+    @Enumerated(EnumType.STRING)
+    private OrderState state;
+    //
 //    @Column(name = "order_date")
 //    private LocalDateTime orderDate;
 //
     @Version
     private long version;
+
+    protected Order() {
+    }
+
+    public static Order random() {
+        Order order = new Order();
+        List<OrderLine> orderLines = new ArrayList<>();
+        int count = random.nextInt(3);
+        for (int i = 0; i < count; i++) {
+            OrderLine ol = new OrderLine(
+                    new ProductId(UUID.randomUUID().toString()),
+                    random.nextInt(10) * 1000,
+                    random.nextInt(99));
+            orderLines.add(ol);
+        }
+        order.orderId = new OrderId(UUID.randomUUID().toString());
+        order.orderLines = orderLines;
+        order.state = OrderState.PREPARING;
+        order.version = 0;
+        return order;
+    }
+
+    public void update(OrderDto orderDto) {
+        this.state = orderDto.getState();
+    }
 }
 /*
 create table order_line
