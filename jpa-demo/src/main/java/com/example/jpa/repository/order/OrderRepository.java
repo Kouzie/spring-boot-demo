@@ -16,7 +16,7 @@ public interface OrderRepository extends CrudRepository<Order, OrderId> {
     @Query("SELECT o FROM Order o WHERE o.orderId = :orderId")
     Optional<Order> findByIdPessimistic(OrderId orderId);
 
-    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
+    @Lock(LockModeType.OPTIMISTIC)
     @Query("SELECT o FROM Order o WHERE o.orderId = :orderId")
     Optional<Order> findByIdOptimistic(OrderId orderId);
 
@@ -27,5 +27,4 @@ public interface OrderRepository extends CrudRepository<Order, OrderId> {
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     @Query("SELECT o FROM Order o WHERE o.state = :state")
     List<Order> findAllByOrderStatePessimistic(OrderState state);
-
 }
