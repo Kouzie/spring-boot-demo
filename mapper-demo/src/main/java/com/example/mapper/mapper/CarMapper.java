@@ -18,16 +18,8 @@ public interface CarMapper extends EntityMapper<CarDto, Car> {
 
     @Named("partialUpdate")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(source = "carId", target = "id", ignore = true)
-    @Mapping(source = "seatCount", target = "numberOfSeats")
+//    @Mapping(source = "carId", target = "id", ignore = true)
+//    @Mapping(source = "seatCount", target = "numberOfSeats")
     void partialUpdate(@MappingTarget Car entity, CarDto dto);
 
-    default Car fromId(Long id) {
-        if (id == null) {
-            return null;
-        }
-        Car car = new Car();
-        car.setId(id);
-        return car;
-    }
 }
