@@ -3,7 +3,7 @@ package com.example.mapper.config.validation;
 import com.example.mapper.request.validation.Ad;
 import com.example.mapper.request.validation.Message;
 
-import javax.validation.*;
+import jakarta.validation.*;
 import java.lang.annotation.*;
 import java.util.Set;
 

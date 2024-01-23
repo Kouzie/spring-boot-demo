@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.7.9'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 subprojects {
@@ -12,7 +12,7 @@ subprojects {
 
     group = 'com.example'
     version = '0.0.1-SNAPSHOT'
-    sourceCompatibility = '11'
+    java.sourceCompatibility = '17'
 
     bootJar.enabled = false
     jar.enabled = true
@@ -29,8 +29,8 @@ subprojects {
 
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter'
-        implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
         compileOnly 'org.projectlombok:lombok'

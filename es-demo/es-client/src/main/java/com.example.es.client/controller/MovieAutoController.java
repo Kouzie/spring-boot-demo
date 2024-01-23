@@ -10,13 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.ResourceNotFoundException;
-import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
-import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -24,7 +21,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +62,7 @@ public class MovieAutoController {
                 .field("movieCd", requestDto.getMovieCd())
                 .field("movieNm", requestDto.getMovieNm())
                 .field("movieNmEn", requestDto.getMovieNmEn())
+                .field("prdtYear", requestDto.getPrdtYear())
                 .endObject();
         IndexResponse response = service.saveDoc(builder);
         // add doc response:IndexResponse[index=movie_rest,type=_doc,id=SCyzmogBfkTcbt6LDyqX,version=1,result=created,seqNo=1,primaryTerm=1,shards={"total":2,"successful":1,"failed":0}]

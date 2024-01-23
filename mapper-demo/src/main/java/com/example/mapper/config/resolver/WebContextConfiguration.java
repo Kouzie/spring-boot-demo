@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 import org.springframework.web.servlet.mvc.method.annotation.ServletModelAttributeMethodProcessor;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;

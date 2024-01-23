@@ -6,7 +6,7 @@ import com.example.jpa.model.id.OrderId;
 import com.example.jpa.model.id.ProductId;
 import lombok.Getter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

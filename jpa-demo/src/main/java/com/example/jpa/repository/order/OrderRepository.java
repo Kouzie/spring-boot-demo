@@ -3,11 +3,11 @@ package com.example.jpa.repository.order;
 import com.example.jpa.model.id.OrderId;
 import com.example.jpa.model.order.Order;
 import com.example.jpa.model.order.OrderState;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import javax.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 

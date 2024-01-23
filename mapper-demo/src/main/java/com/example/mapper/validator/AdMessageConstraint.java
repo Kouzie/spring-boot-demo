@@ -2,7 +2,7 @@ package com.example.mapper.validator;
 
 import com.example.mapper.request.Message;
 
-import javax.validation.*;
+import jakarta.validation.*;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

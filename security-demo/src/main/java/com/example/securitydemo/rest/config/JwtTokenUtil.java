@@ -9,7 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.crypto.SecretKey;
+import jakarta.crypto.SecretKey;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Date;

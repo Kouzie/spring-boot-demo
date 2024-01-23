@@ -2,6 +2,8 @@ configure([project(':admin-demo:customer'), project(':admin-demo:store')]) {
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-security'
         implementation 'de.codecentric:spring-boot-admin-starter-client:2.6.6'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'io.micrometer:micrometer-registry-prometheus'
     }
 }
 

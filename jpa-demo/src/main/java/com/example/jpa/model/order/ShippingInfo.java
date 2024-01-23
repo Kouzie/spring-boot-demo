@@ -1,6 +1,6 @@
 package com.example.jpa.model.order;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Embeddable
 public class ShippingInfo {
