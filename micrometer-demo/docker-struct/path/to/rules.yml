@@ -1,0 +1,15 @@
+groups:
+- name: alert_rules
+  rules:
+    - record: job:http_request_count:rate1m
+      expr: rate(http_server_requests_seconds_count[1m])
+    - alert: AbnormalHttpRequestCount
+      expr: job:http_request_count:rate1m * 60 > 60 # 분당 호출횟수 60 이상
+      for: 5s # pending 기간
+      labels:
+        severity: page # 심각도
+        team: devops # 팀명
+      annotations: # 전달할 메세지
+        summary: '호출횟수 비정상' 
+        description: > 
+          호출횟수 비정상 알림, 호출 횟수:{{ printf "%.2f" $value }}, 인스턴스 체크 필 {{ .Labels.instance }} 

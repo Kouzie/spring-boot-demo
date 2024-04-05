@@ -1,0 +1,32 @@
+global:
+  smtp_smarthost: 'smtps.hiworks.com:465'   # 이메일 서버 주소와 포트
+  smtp_from: 'alertmanager@demo.com'    # 발신자 주소
+  smtp_auth_username: 'test_id@demo.com'      # SMTP 인증을 위한 사용자 이름
+  smtp_auth_password: 'test_password'      # SMTP 인증을 위한 비밀번호
+  smtp_require_tls: false                   # TLS 요구 여부
+
+
+templates:
+  - '/etc/alertmanager/template/*.tmpl'  # 템플릿 파일 경로 추가
+
+# route, receiver 는 1개이상 있어야함.
+
+route:
+  receiver: fallback-email
+  routes:
+    - match:
+        severity: page
+      receiver: fallback-email
+    - match:
+        secertiy: (ticket|issue|email)
+      receiver: fallback-email
+
+receivers:
+  - name: fallback-email
+    email_configs:
+    - to: 'test_id@demo.com'
+      # resolve 알림도 보낼지 여부 (true 또는 false)
+      send_resolved: true
+      headers:
+        subject: '{{ template "custom_mail_subject" . }}'
+      html: '{{ template "custom_mail_html" . }}'

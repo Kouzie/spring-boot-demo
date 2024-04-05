@@ -28,4 +28,5 @@ include 'es-demo'
 include 'es-demo:es-spring'
 include 'es-demo:es-client'
 include 'ehcache-demo'
+include 'micrometer-demo'
 

@@ -1,0 +1,37 @@
+{{ define "custom_mail_subject" }}
+  Alert on {{ range .Alerts.Firing }}{{ .Labels.instance }} {{ end }}{{ if gt (len .Alerts.Firing) 0 }}{{ if gt (len .Alerts.Resolved) 0 }} & {{ end }}{{ end }}{{ range .Alerts.Resolved }}{{ .Labels.instance }} {{ end }}
+{{ end }}
+
+{{ define "custom_mail_html" }}
+<html>
+<head>
+<title>Alert!</title>
+</head>
+<body>
+  {{ if gt (len .Alerts.Firing) 0 }}
+    <h2>Firing Alerts</h2>
+    {{ range .Alerts.Firing }}
+      <p>{{ .Labels.alertname }} on {{ .Labels.instance }}<br/>
+      {{ if ne .Annotations.summary "" }}{{ .Annotations.summary }}<br/>{{ end }}
+      {{ range .Annotations.SortedPairs }}{{ .Name }} = {{ .Value }}<br/>{{ end }}</p>
+    <hr />
+    {{ end }}
+  {{ end }}
+
+  {{ if gt (len .Alerts.Resolved) 0 }}
+    <h2>Resolved Alerts</h2>
+    {{ range .Alerts.Resolved }}
+      <p>{{ .Labels.alertname }} on {{ .Labels.instance }}<br/>
+      {{ if ne .Annotations.summary "" }}{{ .Annotations.summary }}<br/>{{ end }}
+      {{ range .Annotations.SortedPairs }}{{ .Name }} = {{ .Value }}<br/>{{ end }}</p>
+    <hr />
+    {{ end }}
+  {{ end }}
+  <p>
+  {{ range $key, $value := .CommonLabels }}
+    {{ $key }} = {{ $value }}<br/>
+  {{ end }}
+  </p>
+</body>
+</html>
+{{ end }}

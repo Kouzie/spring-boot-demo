@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+  prometheus:
+    image: prom/prometheus:v2.51.1
+    volumes:
+      - "./path/to/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./path/to/rules.yml:/etc/prometheus/rules.yml"
+    ports:
+      - '9090:9090'
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    volumes:
+      - "./path/template:/etc/alertmanager/template"
+      - "./path/to/alertmanager.yml:/etc/alertmanager/alertmanager.yml"
+    ports:
+      - '9093:9093'
