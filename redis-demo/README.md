@@ -180,3 +180,10 @@ testCache::param1,param2... 형식으로 생성
 
 - 같은 key 값에 다른 형태의 value 값이 들어가는 경우 `com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot deserialize value of type` ERROR 발생
 
+## 분산락 테스트
+
+
+```shell
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test & done; wait
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test/without/lock & done; wait
+```

@@ -26,3 +26,10 @@ curl -XPOST 'http://localhost:8080/boards/thumbnail' \
 --header 'Content-Type: application/json' \
 --data '{ "boardId": 1 }' 
 ```
+
+## 분산락 테스트
+
+```shell
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test & done; wait
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test/without/lock & done; wait
+```
