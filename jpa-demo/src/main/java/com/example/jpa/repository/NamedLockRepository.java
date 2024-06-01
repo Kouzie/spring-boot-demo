@@ -10,6 +10,7 @@ public class NamedLockRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public Integer getLock(String lockName, int timeout) {
+        // timeout 은 락을 획득하기 위해 기다리는 시간(초)
         Integer result = jdbcTemplate.queryForObject(
                 "SELECT GET_LOCK(?, ?)",
                 Integer.class, // return type
