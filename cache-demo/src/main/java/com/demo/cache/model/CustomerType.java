@@ -1,4 +1,4 @@
-package com.example.redis.model;
+package com.demo.cache.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

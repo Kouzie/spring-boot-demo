@@ -27,8 +27,7 @@ import java.time.Duration;
 
 @Slf4j
 @Configuration
-@EnableCaching
-public class RedisConfig extends CachingConfigurerSupport {
+public class RedisConfig {
     @Value("${redis.host}")
     private String host;
     @Value("${redis.port}")
@@ -52,20 +51,6 @@ public class RedisConfig extends CachingConfigurerSupport {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
         stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
         return stringRedisTemplate;
-    }
-
-    @Bean
-    public CacheManager userCacheManager(@Autowired RedisConnectionFactory connectionFactory, @Autowired ObjectMapper mapper) {
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair
-//                        .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)))
-                        .fromSerializer(RedisSerializer.json()))
-                .entryTtl(Duration.ofMinutes(3L));
-        return RedisCacheManager.RedisCacheManagerBuilder
-                .fromConnectionFactory(connectionFactory)
-                .cacheDefaults(redisCacheConfiguration).build();
     }
 
     @Bean

@@ -1,14 +1,14 @@
-package com.example.redis.service;
+package com.demo.cache;
 
-import com.example.redis.model.Customer;
-import com.example.redis.model.CustomerType;
+import com.demo.cache.model.Customer;
+import com.demo.cache.model.CustomerType;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
-import static com.example.redis.RedisDemoApplication.random;
-
 public class CustomerGenerator {
+    public static Random random = new Random();
 
     public static Customer random() {
         Customer customer = new Customer();
@@ -24,6 +24,7 @@ public class CustomerGenerator {
         customer.setId(id);
         return customer;
     }
+
     public static String randomString() {
         int leftLimit = 97; // letter 'a'
         int rightLimit = 122; // letter 'z'

@@ -1,4 +1,4 @@
-package com.example.redis.model;
+package com.demo.cache.model;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,6 @@
 package com.example.redis.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,19 +16,19 @@ import java.util.Set;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/template")
 public class RedisTemplateController {
-    @Autowired
-    StringRedisTemplate stringRedisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
+
     @GetMapping("/sample")
     public void sample(@RequestParam(required = false) String key, Model model) {
         log.info("sample invoked");
         Set<String> keys;
-        if (StringUtils.hasText(key)){
+        if (StringUtils.hasText(key)) {
             keys = stringRedisTemplate.keys(key);
-        }
-        else {
-            keys= stringRedisTemplate.keys("*");
+        } else {
+            keys = stringRedisTemplate.keys("*");
         }
         model.addAttribute("keys", new ArrayList<>(keys));
     }
