@@ -70,6 +70,8 @@ rules:
     keyGenerators:
       snowflake:
         type: SNOWFLAKE
+        props:
+          worker-id: 123
     auditors:
       sharding_key_required_auditor:
         type: DML_SHARDING_CONDITIONS
