@@ -29,4 +29,6 @@ include 'es-demo:es-spring'
 include 'es-demo:es-client'
 include 'cache-demo'
 include 'micrometer-demo'
+include 'sharding-demo:sharding-sphere'
+include 'sharding-demo'
 

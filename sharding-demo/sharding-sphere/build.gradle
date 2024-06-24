@@ -1,0 +1,13 @@
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.mysql:mysql-connector-j'
+     implementation 'org.apache.shardingsphere:shardingsphere-jdbc-core:5.4.0'
+
+    // spring boot version 과 sharding sphere 간 버전 차이로 인한 오류 해결용
+    implementation "javax.xml.bind:jaxb-api:2.3.1"
+    implementation "org.glassfish.jaxb:jaxb-core:2.3.0.1"
+    implementation "com.sun.xml.bind:jaxb-impl:2.3.1"
+    implementation 'org.yaml:snakeyaml:1.33'
+    implementation 'org.antlr:antlr4-runtime:4.13.0'
+}
