@@ -23,18 +23,16 @@ import java.util.Properties;
 
 @Configuration
 public class DbYamlConfig {
+
+    @Bean
+    public Snowflake snowflake() {
+        return new Snowflake(1, 1);
+    }
+
     @Bean
     public DataSource dataSource() throws SQLException, IOException {
-        // Create ShardingSphereDataSource
-        ClassPathResource resource = new ClassPathResource("sharding-datasource.yaml"); // Indicate YAML file
+        ClassPathResource resource = new ClassPathResource("sharding-datasource-custom.yaml"); // Indicate YAML file
         DataSource dataSource = YamlShardingSphereDataSourceFactory.createDataSource(resource.getFile());
         return dataSource;
     }
-
-    @Bean
-    public SnowflakeKeyGenerateAlgorithm snowflakeKeyGenerateAlgorithm() {
-        return new SnowflakeKeyGenerateAlgorithm();
-    }
-
-
 }

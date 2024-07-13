@@ -1,0 +1,70 @@
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3306/demo_ds_0?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:3307/demo_ds_1?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+
+rules:
+  - !SHARDING
+    tables:
+      t_order:
+        actualDataNodes: ds_${0..1}.t_order_${0..1}
+        tableStrategy:
+          standard:
+            shardingColumn: order_id
+            shardingAlgorithmName: t_order_inline
+        auditStrategy:
+          auditorNames:
+            - sharding_key_required_auditor
+          allowHintDisable: true
+      t_order_item:
+        actualDataNodes: ds_${0..1}.t_order_item_${0..1}
+        tableStrategy:
+          standard:
+            shardingColumn: order_id
+            shardingAlgorithmName: t_order_item_inline
+      t_account:
+        actualDataNodes: ds_${0..1}.t_account
+        tableStrategy:
+          none:
+    defaultShardingColumn: account_id
+    bindingTables:
+      - t_order,t_order_item
+    defaultDatabaseStrategy:
+      standard:
+        shardingColumn: account_id
+        shardingAlgorithmName: database_inline
+    defaultTableStrategy:
+      none:
+
+    shardingAlgorithms:
+      database_inline:
+        type: CLASS_BASED
+        props:
+          strategy: STANDARD
+          algorithmClassName: 'com.example.sharding.sphere.demo.config.SnowflakeShardingAlgorithm'
+      t_order_inline:
+        type: INLINE
+        props:
+          algorithm-expression: t_order_${order_id % 2}
+      t_order_item_inline:
+        type: INLINE
+        props:
+          algorithm-expression: t_order_item_${order_id % 2}
+    auditors:
+      sharding_key_required_auditor:
+        type: DML_SHARDING_CONDITIONS
+  - !BROADCAST
+    tables: # Broadcast tables
+      - t_address
+
+props:
+  sql-show: true

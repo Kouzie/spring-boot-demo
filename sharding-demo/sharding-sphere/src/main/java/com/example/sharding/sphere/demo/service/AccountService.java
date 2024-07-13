@@ -57,4 +57,9 @@ public class AccountService {
         return dto;
     }
 
+    public List<AccountDto> getAccountByNameLike(String name) {
+        return repository.findAllByUserNameLike(name).stream()
+                .map(this::toDto)
+                .toList();
+    }
 }

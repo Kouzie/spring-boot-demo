@@ -5,6 +5,8 @@ import com.example.sharding.sphere.demo.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account")
@@ -14,6 +16,11 @@ public class AccountController {
     @GetMapping("/{accountId}")
     public AccountDto getAccount(@PathVariable Long accountId) {
         return service.getAccountById(accountId);
+    }
+
+    @GetMapping("/name/{name}")
+    public List<AccountDto> getAccountByName(@PathVariable String name) {
+        return service.getAccountByNameLike(name);
     }
 
     @PostMapping
