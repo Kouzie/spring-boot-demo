@@ -1,4 +1,4 @@
-package com.example.jpa.common;
+package com.example.jpa.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import jakarta.persistence.EntityManager;
 
 @Configuration
 public class SpringConfig {
@@ -23,5 +21,12 @@ public class SpringConfig {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
+    }
+
+    @Bean
+    public Snowflake snowflake() {
+        long datasourceId = 0;
+        long workerId = 0;
+        return new Snowflake(datasourceId, workerId);
     }
 }

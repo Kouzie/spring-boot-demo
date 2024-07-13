@@ -14,8 +14,8 @@ subprojects {
     version = '0.0.1-SNAPSHOT'
     java.sourceCompatibility = '17'
 
-    bootJar.enabled = false
-    jar.enabled = true
+    bootJar.enabled = true
+    jar.enabled = false
 
     configurations {
         compileOnly {

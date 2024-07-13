@@ -1,9 +1,11 @@
 package com.example.jpa.model.baord;
 
+import com.example.jpa.config.CustomIdGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
@@ -20,7 +22,10 @@ import static com.example.jpa.JpaDempApplication.random;
 @ToString(exclude = {"replies", "thumbnail"})
 public class Board {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GenericGenerator(name = "customIdGenerator",
+            type = CustomIdGenerator.class)
+    @GeneratedValue(generator = "customIdGenerator") // @GenericGenerator의 name modifier 에 지정한 이름
+    @Column(name = "bno")
     private Long bno;
     private String title;
     private String writer;

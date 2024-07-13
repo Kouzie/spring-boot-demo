@@ -1,4 +1,4 @@
-package com.example.jpa.common;
+package com.example.jpa.config;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
