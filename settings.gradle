@@ -32,4 +32,5 @@ include 'micrometer-demo'
 include 'sharding-demo'
 include 'sharding-demo:sharding-sphere'
 include 'sharding-demo:abstract-routing'
+include 'event-listener-demo'
 
