@@ -1,0 +1,20 @@
+jar.enabled = false
+bootJar.enabled = true
+
+// gradle 전역변수 정의
+ext {
+    EXT_TEST_VALUE = "test_value"
+}
+
+// ext 블록의 key 값을 properties 와 비교해서 replace 하는 함수
+// processResources 의 단점은 환경변수(env) 와 같이 사용할 경우 충돌남 파일명으로 분리하거나 해야함.
+processResources {
+    filesMatching("**/application.properties") {
+        expand(project.properties)
+    }
+}
+
+bootRun {
+    systemProperty 'my.property', "hello"
+    systemProperty 'my.name', "world"
+}
