@@ -1,64 +1,58 @@
 package com.example.securitydemo.rest.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import java.io.IOException;
 
-@Profile("rest")
 @Slf4j
+@Profile("rest")
+@Configuration
 @EnableWebSecurity
-public class RestSecurityConfig extends WebSecurityConfigurerAdapter {
+public class RestSecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .httpBasic().disable() // httpBasic 로그인 disable
-                .formLogin().disable() // formLogin disable
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session 기반 security disable
-                .and()
-                .authorizeRequests()
-                .antMatchers("/boards/random").hasAnyRole("BASIC", "MANAGER")
-                .antMatchers("/boards/list").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(authenticationEntryPoint())
-                .accessDeniedHandler(accessDeniedHandler())
-                .and()
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
-        //.oauth2Login() //oAuth 설정 진입점
-        //.userInfoEndpoint() // oAuth 로그인 성공후 사용자 정보 가져오는 설정
-        //.userService(customOAuth2UserService); //로그인 성공후 후속조치를 위한 OAuth2UserService 구현체, 리소스 서버로부터 사용자 정보를 가져온 후 추가진행
-        ;
+                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
+                .httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 로그인 비활성화
+                .formLogin(AbstractHttpConfigurer::disable) // Form Login 비활성화
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 관리 비활성화
+                .authorizeHttpRequests(auths -> auths
+                        .requestMatchers("/boards/random").hasAnyRole("BASIC", "MANAGER")
+                        .requestMatchers("/boards/list").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                        .accessDeniedHandler(accessDeniedHandler())
+                )
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+        return http.build();
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring()
-                .antMatchers("/auth/login_demo")
-                .antMatchers("/error")
-                .antMatchers("/h2-console/**")
-        ;
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring() // 해당 경로는 보안 필터를 완전히 무시
+                .requestMatchers("/auth/login_demo")
+                .requestMatchers("/error")
+                .requestMatchers("/h2-console/**");
     }
 
     private AuthenticationEntryPoint authenticationEntryPoint() {

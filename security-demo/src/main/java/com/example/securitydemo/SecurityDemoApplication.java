@@ -11,7 +11,6 @@ import java.util.Random;
 public class SecurityDemoApplication {
     public static Lorem lorem = LoremIpsum.getInstance();
     public static Random random = new Random();
-
     public static void main(String[] args) {
         SpringApplication.run(SecurityDemoApplication.class, args);
     }

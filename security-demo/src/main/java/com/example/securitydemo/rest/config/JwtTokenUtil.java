@@ -2,22 +2,17 @@ package com.example.securitydemo.rest.config;
 
 import com.example.securitydemo.common.config.CustomSecurityUser;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.crypto.SecretKey;
+import javax.crypto.SecretKey;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class JwtTokenUtil implements Serializable {
 
