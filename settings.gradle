@@ -33,4 +33,7 @@ include 'sharding-demo:sharding-sphere'
 include 'sharding-demo:abstract-routing'
 include 'event-listener-demo'
 include 'config-demo'
+include 'oauth-demo:auth-server'
+include 'oauth-demo:resource-server'
+include 'oauth-demo:resource-client'
 
