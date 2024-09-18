@@ -1,0 +1,12 @@
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-oauth2-authorization-server"
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.h2database:h2'
+    // spring security 에서 ObservationFilterChainDecorator 사용 제거를 위한
+    configurations {
+        all {
+            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-actuator'
+        }
+    }
+}
