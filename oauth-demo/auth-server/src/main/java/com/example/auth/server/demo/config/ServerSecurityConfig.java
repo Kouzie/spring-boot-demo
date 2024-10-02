@@ -8,16 +8,16 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.Customizer;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2Token;
-import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -26,21 +26,20 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static com.example.auth.server.demo.config.CustomClientMetadataConfig.configureCustomClientMetadataConverters;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 
 @Configuration
-@Import(OAuth2AuthorizationServerConfiguration.class)
 @RequiredArgsConstructor
 public class ServerSecurityConfig {
 
@@ -100,39 +99,28 @@ public class ServerSecurityConfig {
 
     // oauth core module 등록
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            RegisteredClientRepository registeredClientRepository,
-            OAuth2AuthorizationService authorizationService,
-            OAuth2AuthorizationConsentService authorizationConsentService,
-            OAuth2TokenGenerator<OAuth2Token> tokenGenerator,
-            JwtEncoder jwtEncoder,
-            JwtDecoder jwtDecoder,
-            HttpSecurity http) throws Exception {
-
-        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/connect/register").permitAll()
-                        .requestMatchers("/oauth2/authorize").permitAll()
-                        .requestMatchers("/oauth2/token").permitAll()
-                )
-                .formLogin(Customizer.withDefaults())
-                .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-        ;
-
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(RegisteredClientRepository registeredClientRepository,
+                                                                      OAuth2AuthorizationService authorizationService,
+                                                                      OAuth2AuthorizationConsentService authorizationConsentService,
+                                                                      OAuth2TokenGenerator<OAuth2Token> tokenGenerator,
+                                                                      JwtEncoder jwtEncoder,
+                                                                      JwtDecoder jwtDecoder,
+                                                                      HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = http.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
-        authorizationServerConfigurer
-                //.oidc(Customizer.withDefaults()) // Initialize `OidcConfigurer`
-                .oidc(oidc -> oidc.clientRegistrationEndpoint(clientRegistrationEndpoint -> {
-                    clientRegistrationEndpoint
-                            .authenticationProviders(configureCustomClientMetadataConverters());
-                }))
+        OAuth2AuthorizationServerConfigurer authz = http.getConfigurer(OAuth2AuthorizationServerConfigurer.class);
+        authz
                 .registeredClientRepository(registeredClientRepository)
                 .authorizationService(authorizationService)
                 .authorizationConsentService(authorizationConsentService)
                 .tokenGenerator(tokenGenerator)
                 .authorizationServerSettings(AuthorizationServerSettings.builder().build())
-                /*.authorizationServerSettings( AuthorizationServerSettings.builder()
+                .oidc(oidc -> oidc.clientRegistrationEndpoint(clientRegistrationEndpoint -> {
+                    clientRegistrationEndpoint
+                            .authenticationProviders(configureCustomClientMetadataConverters());
+                }));
+        /*authz
+                .authorizationServerSettings( AuthorizationServerSettings.builder()
                         .issuer("http://localhost:8080")
                         .authorizationEndpoint("/oauth2/v1/authorize")
                         .deviceAuthorizationEndpoint("/oauth2/v1/device_authorization")
@@ -159,16 +147,37 @@ public class ServerSecurityConfig {
                         .logoutEndpoint(logoutEndpoint -> { })
                         .userInfoEndpoint(userInfoEndpoint -> { })
                         .clientRegistrationEndpoint(clientRegistrationEndpoint -> { })
-                )*/
+                );*/
+        http
+                .securityMatchers(matchers -> matchers.requestMatchers(antMatcher("/oauth2/**"), authz.getEndpointsMatcher()))
+                // Accept access tokens for User Info and/or Client Registration
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)))
+                // Redirect to the login page when not authenticated from the
+                // authorization endpoint
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
         ;
-        http.oauth2ResourceServer(configurer ->
-                configurer.jwt(jwtConfigurer -> {
-                    jwtConfigurer.decoder(jwtDecoder);
-                })
-        );
+
         return http.build();
     }
 
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+            throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/login", "/error").permitAll()
+                        .anyRequest().authenticated()
+                )
+                // Form login handles the redirect to the login page from the
+                // authorization server filter chain
+                .formLogin(login -> login.loginPage("/login"))
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {

@@ -10,9 +10,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.Map;
 
 
 @Configuration
@@ -33,12 +32,12 @@ public class ResourceClientConfig {
         ClientRegistration.Builder builder = ClientRegistrations.fromIssuerLocation("http://localhost:9090");
         ClientRegistration clientRegistration = builder
                 .clientId("oauth-client-demo")
-                .clientSecret("oauth-client-demo-secret")
-                .clientName("oauth client demo")
+                .clientSecret("secret")
+                .clientName("Resource Client Demo")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/{registrationId}")
-                .scope("openid", "profile")
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-demo")
+                .scope(OidcScopes.OPENID, OidcScopes.PROFILE)
                 .build();
         return new InMemoryClientRegistrationRepository(clientRegistration);
     }

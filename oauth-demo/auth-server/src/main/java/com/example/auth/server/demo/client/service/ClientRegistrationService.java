@@ -1,54 +1,58 @@
 package com.example.auth.server.demo.client.service;
 
-import com.example.auth.server.demo.client.model.JpaRegisteredClientRepository;
 import com.example.auth.server.demo.client.dto.ClientRegistrationRequest;
 import com.example.auth.server.demo.client.dto.ClientRegistrationResponse;
+import com.example.auth.server.demo.client.model.JpaRegisteredClientRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
-
 @Service
 @RequiredArgsConstructor
 public class ClientRegistrationService {
     private final JpaRegisteredClientRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostConstruct
     void init() {
-        ClientRegistrationRequest clientRegistrationRequest = new ClientRegistrationRequest(
-                "client-1",
-                List.of(AuthorizationGrantType.AUTHORIZATION_CODE.getValue()),
-                List.of("https://client.example.org/callback",
-                        "https://client.example.org/callback2"),
-                "https://client.example.org/logo",
-                List.of("contact-1", "contact-2"),
-                "openid email profile"
-        );
-        register(clientRegistrationRequest);
+
+        RegisteredClient.Builder registration = RegisteredClient.withId("oauth-client-demo")
+                .clientId("oauth-client-demo")
+                // plaintext is secret It is encoded with BCrypt from EncodedSecretTests
+                // do not include secrets in the source code because bad actors can get access to your secrets
+                .clientSecret(passwordEncoder.encode("secret"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantTypes(types -> {
+                    types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                    types.add(AuthorizationGrantType.CLIENT_CREDENTIALS);
+                    types.add(AuthorizationGrantType.REFRESH_TOKEN);
+                })
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-demo")
+                .scopes(scopes -> {
+                    scopes.add("openid");
+                    scopes.add("profile");
+                    scopes.add("email");
+                    scopes.add("phone");
+                    scopes.add("address");
+                    scopes.add("keys.write");
+                })
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(true)
+                        .build());
+        this.save(registration.build());
+    }
+
+    public void save(RegisteredClient registeredClient) {
+        repository.save(registeredClient);
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
-        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("oauth-client-demo")
-                .clientSecret("oauth-client-demo-secret")
-                .clientName("oauth client demo")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/{registrationId}")
-                .scopes(scopes->scopes.addAll(List.of()))
-                .build();
-
-        repository.save(client);
-        ClientRegistrationResponse response = new ClientRegistrationResponse();
-        return response;
+        return null;
     }
 
     private ClientRegistrationResponse toDto(RegisteredClient registeredClient) {
