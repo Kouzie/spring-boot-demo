@@ -1,5 +1,7 @@
 package com.example.auth.server.demo.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -9,11 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -37,7 +41,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
-import static com.example.auth.server.demo.config.CustomClientMetadataConfig.configureCustomClientMetadataConverters;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 
@@ -117,10 +120,11 @@ public class ServerSecurityConfig {
                 .authorizationConsentService(authorizationConsentService)
                 .tokenGenerator(tokenGenerator)
                 .authorizationServerSettings(AuthorizationServerSettings.builder().build())
-                .oidc(oidc -> oidc.clientRegistrationEndpoint(clientRegistrationEndpoint -> {
-                    clientRegistrationEndpoint
-                            .authenticationProviders(configureCustomClientMetadataConverters());
-                }))
+//                .oidc(oidc -> oidc
+//                        .clientRegistrationEndpoint(clientRegistrationEndpoint ->
+//                                clientRegistrationEndpoint
+//                                        .authenticationProviders(configureCustomClientMetadataConverters())))
+                .oidc(Customizer.withDefaults())	// Initialize `OidcConfigurer`
                 .authorizationEndpoint(configurer -> configurer.consentPage("/oauth2/consent"))
         ;
         /*authz

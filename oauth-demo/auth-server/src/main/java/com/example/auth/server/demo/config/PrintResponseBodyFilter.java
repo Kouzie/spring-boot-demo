@@ -7,6 +7,7 @@ import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @Component
+@Slf4j
 public class PrintResponseBodyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -23,7 +25,7 @@ public class PrintResponseBodyFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, responseWrapper);
         // 응답 본문을 디버그 콘솔에 출력
         String responseBody = responseWrapper.getResponseBody();
-        System.out.println("print:" + responseBody); // 또는 디버그 창에서 확인
+        log.debug("print:" + responseBody); // 또는 디버그 창에서 확인
         // 원래 응답 객체에 동일한 응답 본문을 다시 작성
         response.getOutputStream().write(responseBody.getBytes("UTF-8"));
         response.getOutputStream().flush();

@@ -1,7 +1,5 @@
 package com.example.auth.resourceclient.demo.client;
 
-import com.example.auth.resourceclient.demo.model.ResourceClientUserDto;
-import com.example.auth.resourceclient.demo.model.ResourceClientUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -11,9 +9,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 @Slf4j
 @RequiredArgsConstructor
-public class KakaoOidc2UserService extends OidcUserService {
-    private final static String registrationId = "kakao-auth-registration-id";
-    private final ResourceClientUserService resourceClientUserService;
+public class SpringOidc2UserService extends OidcUserService {
+    private final static String registrationId = "oauth-demo-registration-id";
 
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -22,8 +19,8 @@ public class KakaoOidc2UserService extends OidcUserService {
         }
         log.info("kakao loadUser invoked, request:{}", userRequest.toString());
         OidcUser oidcUser = super.loadUser(userRequest);
-        // 회원가입 upsert
-        ResourceClientUserDto user = resourceClientUserService.upsertKakaoUser(oidcUser, registrationId);
-        return new CustomOAuth2User(user, oidcUser);
+        String role = "ROLE_USER";
+        // 회원가입 upsert 생략, 자체 서비스
+        return new CustomOAuth2User(oidcUser, role, registrationId);
     }
 }

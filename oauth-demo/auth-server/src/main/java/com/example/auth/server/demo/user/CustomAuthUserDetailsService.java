@@ -26,12 +26,13 @@ public class CustomAuthUserDetailsService implements UserDetailsService {
         return toUser(authUserEntity);
     }
 
-    private UserDetails toUser(AuthUserEntity authUserEntity) {
-        User user = new User(
-                authUserEntity.getUname(),
-                authUserEntity.getUpw(),
-                List.of(new SimpleGrantedAuthority(authUserEntity.getRole()))
-        );
+    private UserDetails toUser(AuthUserEntity entity) {
+//        User user = new User(
+//                entity.getUname(),
+//                entity.getUpw(),
+//                List.of(new SimpleGrantedAuthority(entity.getRole()))
+//        );
+        CustomAuthUser user = new CustomAuthUser(entity);
         return user;
     }
 }

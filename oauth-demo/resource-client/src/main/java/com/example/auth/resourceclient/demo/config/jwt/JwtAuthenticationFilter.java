@@ -1,7 +1,9 @@
 package com.example.auth.resourceclient.demo.config.jwt;
 
+import com.example.auth.resourceclient.demo.client.CustomOAuth2User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +30,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         // check request header JWT
-        final String authorization = request.getHeader(AUTHORIZATION_HEADER);
-        if (authorization == null || !authorization.startsWith(BEARER)) {
+        String authorization = null;
+        Cookie[] cookies = request.getCookies() == null ? new Cookie[]{} : request.getCookies();
+        for (Cookie cookie : cookies) {
+            System.out.println(cookie.getName());
+            if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+                authorization = cookie.getValue();
+            }
+        }
+        if (authorization == null) {
             log.warn("JWT Token does not begin with Bearer String, url:{}", request.getRequestURL());
             request.setAttribute("exception", "INVALID AUTHORIZATION HEADER");
             chain.doFilter(request, response);
             return;
         }
-        String token = authorization.substring(7);
+        String token = authorization;
         if (jwtUtil.isExpired(token)) {
             log.warn("JWT Token expired, url:{}", request.getRequestURL());
             request.setAttribute("exception", "EXPIRED TOKEN");
@@ -50,9 +59,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(String token) {
-        Collection<? extends GrantedAuthority> authorities = jwtUtil.getAuthorities(token);
         Map<String, Object> attributes = jwtUtil.getClaims(token);
-        OAuth2User oAuth2User = new DefaultOAuth2User(authorities, attributes, "name");
+        OAuth2User oAuth2User = new CustomOAuth2User(attributes, "name");
         Authentication authToken = new UsernamePasswordAuthenticationToken(oAuth2User, null, oAuth2User.getAuthorities());
         return authToken;
     }

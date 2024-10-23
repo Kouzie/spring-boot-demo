@@ -36,30 +36,15 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String role, long exp) {
-//        "auth_time" -> {Instant@16685} "2024-10-23T10:25:25Z"
-//        "iss" -> {URL@16686} "http://localhost:9090"
-//        "exp" -> {Instant@16687} "2024-10-23T10:57:44Z"
-//        "iat" -> {Instant@16688} "2024-10-23T10:27:44Z"
-//        "sub" -> "admin"
-//        "azp" -> "oauth-demo-client-id"
-//        "nonce" -> "CyQ4FwvlNmPtoAI3P2PzcNdRF9Jv7E287BDN7uTImSs"
-//        "jti" -> "28d79b5f-3987-4c47-9f6d-fdd49c123bc0"
-//        "sid" -> "YvJThdQfk4Tzp70vIPTbtq3eBLcFw6qyBSz2fxT7zYM"
-        String token = Jwts.builder()
-                .claim("sub", attributes.get("sub"))
-                .claim("azp", attributes.get("azp"))
-                .claim("nonce", attributes.get("nonce"))
-                .claim("jti", attributes.get("jti"))
-                .claim("sid", attributes.get("sid"))
-                .claim("authorities", authorities.stream()
-                        .map(GrantedAuthority::getAuthority).collect(Collectors.joining(",")))
+    public String createJwt(String username, String role, Long expiredMs) {
+
+        return Jwts.builder()
+                .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + exp))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
                 .compact();
-        return token;
     }
 
     public Map<String, Object> getClaims(String token) {

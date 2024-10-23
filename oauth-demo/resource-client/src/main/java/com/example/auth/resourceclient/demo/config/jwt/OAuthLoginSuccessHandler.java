@@ -1,5 +1,6 @@
 package com.example.auth.resourceclient.demo.config.jwt;
 
+import com.example.auth.resourceclient.demo.client.CustomOAuth2User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,22 +25,28 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String username = oAuth2User.getName();
-        Collection<? extends GrantedAuthority> authorities = oAuth2User.getAuthorities();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        String token = jwtUtil.createJwt(authorities, attributes, "ROLE_USER", 60*60*60L);
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String token = jwtUtil.createJwt(oAuth2User.getUsername(), oAuth2User.getRole(), 60 * 60 * 60L);
         response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:8080/main");
+        response.sendRedirect("http://127.0.0.1:8080/main");
     }
 
-    private Cookie createCookie(String key, String value) {
-
+    /*private Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60);
+        cookie.setMaxAge(60 * 60 * 60);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         return cookie;
+    }*/
+    private Cookie createCookie(String name, String value) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // HTTPS가 필요한 경우 true로 설정
+        cookie.setPath("/");
+        //cookie.setDomain(""); localhost 환경에서 사용 X
+        cookie.setMaxAge(60 * 60 * 60);
+        return cookie;
     }
+
 }

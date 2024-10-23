@@ -88,6 +88,7 @@ public class ResourceClientConfig {
         return (web) -> web.ignoring() // 해당 경로는 보안 필터를 완전히 무시
                 .requestMatchers("/login")
                 .requestMatchers("/error")
+                .requestMatchers("/favicon.ico")
                 .requestMatchers("/h2-console/**");
     }
 }

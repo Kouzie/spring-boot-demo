@@ -30,6 +30,6 @@ public class NaverOAuth2UserService extends DefaultOAuth2UserService {
         // 회원가입 upsert
         ResourceClientUserDto user = resourceClientUserService.upsertNaverUser(oAuth2User, registrationId);
         // 단순 로그인처리만 진행할거라면 oAuth2User 를 그대로 반환해도 상관없음.
-        return new CustomOAuth2User(user);
+        return new CustomOAuth2User(user, oAuth2User);
     }
 }
