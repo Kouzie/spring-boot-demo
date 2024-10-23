@@ -1,14 +1,9 @@
 package com.example.auth.resourceclient.demo.config;
 
-import com.example.auth.resourceclient.demo.client.KakaoOidc2UserService;
-import com.example.auth.resourceclient.demo.client.NaverOAuth2UserService;
-import com.example.auth.resourceclient.demo.model.ResourceClientUserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -16,19 +11,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 
 @Configuration
-@RequiredArgsConstructor
 public class ResourceClientConfig {
 
     @Value("${naver.oauth.client.id}")
@@ -39,38 +29,12 @@ public class ResourceClientConfig {
     private String kakaoOAuthClientId;
     @Value("${kakao.oauth.client.secret}")
     private String kakaoOAuthClientSecret;
-    private final ResourceClientUserService resourceClientUserService;
 
     // Resource Client 가 여러개 띄어져 있어도 JDBC 를 통해 DB 에서 access token, refresh token 등을 검색하기 때문에 로그인이 풀리지 않음
     @Bean
     public OAuth2AuthorizedClientService authorizedClientService(DataSource dataSource,
                                                                  ClientRegistrationRepository clientRegistrationRepository) {
         return new JdbcOAuth2AuthorizedClientService(new JdbcTemplate(dataSource), clientRegistrationRepository);
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(ClientRegistrationRepository clientRegistrationRepository,
-                                                   OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
-                                                   HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().authenticated())
-                .oauth2Login(oauth2 -> oauth2
-                        .clientRegistrationRepository(clientRegistrationRepository)
-                        .defaultSuccessUrl("/main", false) // alwaysUse 는 이전 방문 페이지로 이동시킴
-                        .userInfoEndpoint(userinfo -> userinfo
-                                .userService(new DelegatingOAuth2UserService(List.of(
-                                        new NaverOAuth2UserService(resourceClientUserService),
-                                        new DefaultOAuth2UserService()
-                                )))
-                                .oidcUserService(new DelegatingOAuth2UserService(List.of(
-                                        new KakaoOidc2UserService(resourceClientUserService)
-                                )))
-                        )
-                        .authorizedClientService(oAuth2AuthorizedClientService) // jdbc authorizedClientService 사용하도록 변경
-                        .loginPage("/login")
-                );
-        return http.build();
     }
 
     @Bean
@@ -82,12 +46,11 @@ public class ResourceClientConfig {
                 .clientId("oauth-demo-client-id")
                 .clientSecret("secret")
                 .clientName("Resource Client Demo")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE 방식, code_challenge code_verifier 를 사용
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-redirect")
-                .scope(OidcScopes.OPENID, OidcScopes.PROFILE)
+                .scope(OidcScopes.OPENID, OidcScopes.PROFILE, OidcScopes.EMAIL)
                 .build();
-
         // naver 에선 oidc 를 지원하지 않으며 각종 oauth 관련 url 을 수기로 작성해줘야 한다.
         ClientRegistration naverAuthClient = ClientRegistration.withRegistrationId("naver-auth-registration-id")
                 .authorizationUri("https://nid.naver.com/oauth2.0/authorize")

@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class MainController {
+public class PageController {
     private final FilterChainProxy filterChainProxy;
 
     @PostConstruct
@@ -36,5 +36,11 @@ public class MainController {
     @GetMapping("/main")
     public String getMain() {
         return "main";
+    }
+
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
     }
 }

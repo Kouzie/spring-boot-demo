@@ -1,5 +1,6 @@
 package com.example.auth.resourceclient.demo.client;
 
+import com.example.auth.resourceclient.demo.model.ResourceClientUserDto;
 import com.example.auth.resourceclient.demo.model.ResourceClientUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class KakaoOidc2UserService extends OidcUserService {
         log.info("kakao loadUser invoked, request:{}", userRequest.toString());
         OidcUser oidcUser = super.loadUser(userRequest);
         // 회원가입 upsert
-        resourceClientUserService.upsertKakaoUser(oidcUser, registrationId);
-        return oidcUser;
+        ResourceClientUserDto user = resourceClientUserService.upsertKakaoUser(oidcUser, registrationId);
+        return new CustomOAuth2User(user);
     }
 }

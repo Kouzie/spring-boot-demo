@@ -2,10 +2,7 @@ package com.example.auth.resourceclient.demo.model;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +16,7 @@ public class ResourceClientUserService {
     private final ResourceClientUserRepository repository;
 
     @Transactional
-    public void upsertNaverUser(OAuth2User oAuth2User, String registrationId) {
+    public ResourceClientUserDto upsertNaverUser(OAuth2User oAuth2User, String registrationId) {
         Map<String, Object> response = oAuth2User.getAttribute("response");
         assert response != null;
         String email = response.get("email").toString();
@@ -32,10 +29,11 @@ public class ResourceClientUserService {
         );
         entity = repository.save(entity);
         log.info("upsert user, id:{}, username:{}, registrationId:{}", entity.getId(), username, registrationId);
+        return toDto(entity);
     }
 
     @Transactional
-    public void upsertKakaoUser(OidcUser oidcUser, String registrationId) {
+    public ResourceClientUserDto upsertKakaoUser(OidcUser oidcUser, String registrationId) {
         String email = oidcUser.getClaimAsString("email"); // email 은 kakao 앱 인증받고 수신 가능
         String username = email;
         String name = oidcUser.getClaimAsString("nickname");
@@ -46,5 +44,18 @@ public class ResourceClientUserService {
         );
         entity = repository.save(entity);
         log.info("upsert user, id:{}, username:{}, registrationId:{}", entity.getId(), username, registrationId);
+        return toDto(entity);
+    }
+
+    public ResourceClientUserDto toDto(ResourceClientUserEntity entity) {
+        ResourceClientUserDto dto = new ResourceClientUserDto();
+        dto.setId(entity.getId());
+        dto.setUsername(entity.getUsername());
+        dto.setEmail(entity.getEmail());
+        dto.setName(entity.getName());
+        dto.setOauthId(entity.getOauthId());
+        dto.setRole(entity.getRole());
+        dto.setRegistrationId(entity.getRegistrationId());
+        return dto;
     }
 }
