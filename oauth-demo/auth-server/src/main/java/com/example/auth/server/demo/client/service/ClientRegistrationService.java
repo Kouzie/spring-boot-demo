@@ -1,8 +1,8 @@
 package com.example.auth.server.demo.client.service;
 
+import com.example.auth.server.demo.client.JpaRegisteredClientRepository;
 import com.example.auth.server.demo.client.dto.ClientRegistrationRequest;
 import com.example.auth.server.demo.client.dto.ClientRegistrationResponse;
-import com.example.auth.server.demo.client.model.JpaRegisteredClientRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +12,9 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class ClientRegistrationService {
                 // plaintext is secret It is encoded with BCrypt from EncodedSecretTests
                 // do not include secrets in the source code because bad actors can get access to your secrets
                 .clientSecret(passwordEncoder.encode("secret"))
+                .clientName("spring boot oauth demo")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantTypes(types -> {
                     types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
@@ -34,27 +38,59 @@ public class ClientRegistrationService {
                     types.add(AuthorizationGrantType.REFRESH_TOKEN);
                 })
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-redirect")
+                .postLogoutRedirectUri("http://127.0.0.1:8080/")
                 .scopes(scopes -> {
                     scopes.add(OidcScopes.OPENID);
                     scopes.add(OidcScopes.PROFILE);
                     scopes.add(OidcScopes.EMAIL);
-                    scopes.add("keys.write");
                 })
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(true)
                         .build());
-        this.save(registration.build());
-    }
-
-    public void save(RegisteredClient registeredClient) {
-        repository.save(registeredClient);
+        repository.save(registration.build());
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
-        return null;
+        RegisteredClient registeredClient = toClient(request);
+        repository.save(registeredClient);
+        return toDto(registeredClient);
+    }
+
+    private RegisteredClient toClient(ClientRegistrationRequest request) {
+        RegisteredClient registeredClient = RegisteredClient.withId(String.valueOf(System.currentTimeMillis()))
+                .clientId(request.getClientId())
+                .clientSecret(passwordEncoder.encode(request.getClientSecret()))
+                .clientName(request.getClientName())
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantTypes(types -> {
+                    types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                    types.add(AuthorizationGrantType.CLIENT_CREDENTIALS);
+                    types.add(AuthorizationGrantType.REFRESH_TOKEN);
+                })
+                .postLogoutRedirectUri(request.getPostLogoutRedirectUri())
+                .redirectUri(request.getRedirectUri())
+                .scopes(scopes -> scopes.addAll(request.getScopes()))
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(true)
+                        .build())
+                .build();
+        return registeredClient;
     }
 
     private ClientRegistrationResponse toDto(RegisteredClient registeredClient) {
-        return null;
+        return ClientRegistrationResponse.builder()
+                .id(registeredClient.getId())
+                .clientId(registeredClient.getClientId())
+                .clientSecret(registeredClient.getClientSecret())
+                .clientName(registeredClient.getClientName())
+                .authorizationGrantTypes(getGrantTypes(registeredClient.getAuthorizationGrantTypes()))
+                .redirectUri(registeredClient.getRedirectUris().stream().toList().get(0))
+                .postLogoutRedirectUri(registeredClient.getPostLogoutRedirectUris().stream().toList().get(0))
+                .scopes(registeredClient.getScopes())
+                .build();
+    }
+
+    private Set<String> getGrantTypes(Set<AuthorizationGrantType> authorizationGrantTypes) {
+        return authorizationGrantTypes.stream().map(AuthorizationGrantType::getValue).collect(Collectors.toSet());
     }
 }

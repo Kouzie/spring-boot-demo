@@ -10,14 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 
 @Slf4j
@@ -25,26 +22,25 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER = "Bearer";
-    private final JWTUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         // check request header JWT
-        String authorization = null;
         Cookie[] cookies = request.getCookies() == null ? new Cookie[]{} : request.getCookies();
+        String token = null;
         for (Cookie cookie : cookies) {
             System.out.println(cookie.getName());
             if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
-                authorization = cookie.getValue();
+                token = cookie.getValue();
             }
         }
-        if (authorization == null) {
+        if (token == null) {
             log.warn("JWT Token does not begin with Bearer String, url:{}", request.getRequestURL());
             request.setAttribute("exception", "INVALID AUTHORIZATION HEADER");
             chain.doFilter(request, response);
             return;
         }
-        String token = authorization;
         if (jwtUtil.isExpired(token)) {
             log.warn("JWT Token expired, url:{}", request.getRequestURL());
             request.setAttribute("exception", "EXPIRED TOKEN");

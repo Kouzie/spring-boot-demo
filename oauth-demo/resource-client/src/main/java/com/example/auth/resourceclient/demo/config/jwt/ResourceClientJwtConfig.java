@@ -16,9 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,7 +35,7 @@ public class ResourceClientJwtConfig {
                                                    OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
                                                    ResourceClientUserService resourceClientUserService,
                                                    OAuthLoginSuccessHandler oAuthLoginSuccessHandler,
-                                                   JWTUtil jwtUtil,
+                                                   JwtUtil jwtUtil,
                                                    HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
@@ -71,7 +69,7 @@ public class ResourceClientJwtConfig {
         return new AuthenticationEntryPoint() {
             @Override
             public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                response.sendRedirect("/login?error=UNAUTHORIZED");
             }
         };
     }

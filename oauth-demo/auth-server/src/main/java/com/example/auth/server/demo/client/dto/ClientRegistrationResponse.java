@@ -1,18 +1,36 @@
 package com.example.auth.server.demo.client.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
-public record ClientRegistrationResponse(
-        @JsonProperty("registration_access_token") String registrationAccessToken,
-        @JsonProperty("registration_client_uri") String registrationClientUri,
-        @JsonProperty("client_name") String clientName,
-        @JsonProperty("client_id") String clientId,
-        @JsonProperty("client_secret") String clientSecret,
-        @JsonProperty("grant_types") List<String> grantTypes,
-        @JsonProperty("redirect_uris") List<String> redirectUris,
-        @JsonProperty("logo_uri") String logoUri,
-        List<String> contacts,
-        String scope) {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ClientRegistrationResponse {
+    @JsonProperty("id")
+    String id;
+    @JsonProperty("registration_access_token")
+    String registrationAccessToken;
+    @JsonProperty("registration_client_uri")
+    String registrationClientUri;
+    @JsonProperty("client_id")
+    String clientId;
+    @JsonProperty("client_secret")
+    String clientSecret;
+    @JsonProperty("client_name")
+    String clientName;
+    @JsonProperty("authorization_grant_types")
+    Set<String> authorizationGrantTypes;
+    @JsonProperty("redirect_uri")
+    String redirectUri;
+    @JsonProperty("post_logout_redirect_uri")
+    String postLogoutRedirectUri;
+    @JsonProperty("logo_uri")
+    String logoUri;
+    @JsonProperty("scopes")
+    Set<String> scopes;
 }

@@ -1,7 +1,5 @@
 package com.example.auth.server.demo.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -17,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -46,7 +43,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @Configuration
 @RequiredArgsConstructor
-public class ServerSecurityConfig {
+public class  ServerSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -154,7 +151,7 @@ public class ServerSecurityConfig {
                         .providerConfigurationEndpoint(providerConfigurationEndpoint -> { })
                         .logoutEndpoint(logoutEndpoint -> { })
                         .userInfoEndpoint(userInfoEndpoint -> { })
-                        .clientRegistrationEndpoint(clientRegistrationEndpoint -> { })
+                        .clientRegistrationEndpoint(clie  ntRegistrationEndpoint -> { })
                 );*/
         http
                 .securityMatchers(matchers -> matchers.requestMatchers(antMatcher("/oauth2/**"), authz.getEndpointsMatcher()))
