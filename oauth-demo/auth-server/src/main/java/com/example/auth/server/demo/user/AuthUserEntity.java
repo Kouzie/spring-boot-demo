@@ -21,21 +21,18 @@ public class AuthUserEntity {
     @Column(nullable = false)
     private String upw;
     @Column(nullable = false)
-    private String nickname;
-    @Column(nullable = false)
     private String email;
     @Column(nullable = false)
     private String role;
 
-    @CreationTimestamp
-    private LocalDateTime regdate;
     @UpdateTimestamp
     private LocalDateTime updatedate;
+    @CreationTimestamp
+    private LocalDateTime regdate;
 
-    public AuthUserEntity(String uname, String upw, String nickname, String email, String role) {
+    public AuthUserEntity(String uname, String upw, String email, String role) {
         this.uname = uname;
         this.upw = upw;
-        this.nickname = nickname;
         this.email = email;
         this.role = role;
     }

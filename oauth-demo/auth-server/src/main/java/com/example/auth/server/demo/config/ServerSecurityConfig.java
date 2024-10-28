@@ -136,12 +136,12 @@ public class ServerSecurityConfig {
                 .authorizationService(authorizationService)
                 .authorizationConsentService(authorizationConsentService)
                 .tokenGenerator(tokenGenerator)
-                .authorizationServerSettings(AuthorizationServerSettings.builder().build())
-//                .oidc(oidc -> oidc
-//                        .clientRegistrationEndpoint(clientRegistrationEndpoint ->
-//                                clientRegistrationEndpoint
-//                                        .authenticationProviders(configureCustomClientMetadataConverters())))
                 .oidc(Customizer.withDefaults())    // Initialize `OidcConfigurer`
+                .oidc(oidc -> oidc.providerConfigurationEndpoint(config -> config
+                        .providerConfigurationCustomizer(customizer -> customizer
+                                .userInfoEndpoint("http://localhost:7070/userinfo")
+                        )
+                ))
                 .authorizationEndpoint(configurer -> configurer.consentPage("/oauth2/consent"))
         ;
         /*authz

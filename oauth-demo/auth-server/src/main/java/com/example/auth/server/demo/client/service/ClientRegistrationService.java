@@ -39,8 +39,8 @@ public class ClientRegistrationService {
                 .postLogoutRedirectUri("http://127.0.0.1:8080/")
                 .scopes(scopes -> {
                     scopes.add(OidcScopes.OPENID);
-                    scopes.add(OidcScopes.PROFILE);
                     scopes.add(OidcScopes.EMAIL);
+                    scopes.add(OidcScopes.PROFILE); // gender, birthdate, nickname
                 })
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(true)

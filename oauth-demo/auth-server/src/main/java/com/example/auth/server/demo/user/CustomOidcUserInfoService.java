@@ -23,7 +23,6 @@ public class CustomOidcUserInfoService {
         return OidcUserInfo.builder()
                 .subject(uname)
                 .name(uname)
-                .nickname(entity.getNickname())
                 .email(entity.getEmail())
                 .updatedAt(entity.getUpdatedate().format(DateTimeFormatter.ISO_DATE))
                 .claim("uid", entity.getUid().toString())

@@ -19,7 +19,6 @@ public class AuthUserService {
         AuthUserEntity user = new AuthUserEntity(
                 "kouzie",
                 encoder.encode("password"),
-                "kouzie_nickname",
                 "kouzie@test.com",
                 "user"
         );
@@ -27,7 +26,6 @@ public class AuthUserService {
         AuthUserEntity admin = new AuthUserEntity(
                 "admin",
                 encoder.encode("password"),
-                "administrator_nickname",
                 "admin@test.com",
                 "admin"
         );

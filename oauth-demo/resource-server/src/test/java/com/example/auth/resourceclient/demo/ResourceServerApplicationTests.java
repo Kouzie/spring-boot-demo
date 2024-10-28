@@ -1,4 +1,4 @@
-package com.example.resourceserver;
+package com.example.auth.resourceclient.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
