@@ -1,4 +1,4 @@
-package com.example.auth.resourceclient.demo;
+package com.example.auth.resourceserver.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

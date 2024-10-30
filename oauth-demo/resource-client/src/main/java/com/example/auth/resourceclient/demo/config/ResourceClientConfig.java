@@ -2,6 +2,7 @@ package com.example.auth.resourceclient.demo.config;
 
 import com.example.auth.resourceclient.demo.client.KakaoOidc2UserService;
 import com.example.auth.resourceclient.demo.client.NaverOAuth2UserService;
+import com.example.auth.resourceclient.demo.client.SpringOAuth2UserService;
 import com.example.auth.resourceclient.demo.client.SpringOidc2UserService;
 import com.example.auth.resourceclient.demo.config.jwt.JwtAuthenticationFilter;
 import com.example.auth.resourceclient.demo.config.jwt.JwtUtil;
@@ -10,10 +11,13 @@ import com.example.auth.resourceclient.demo.model.ResourceClientUserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,9 +43,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
+@Slf4j
 @Configuration
 public class ResourceClientConfig {
 
@@ -62,19 +68,64 @@ public class ResourceClientConfig {
     }
 
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        // oidc 를 지원할 경우 /.well-known/openid-configuration URL 을 통해
-        // auth code, token, userinfo 를 가져오는 url 을 자동으로 등록한다
-        ClientRegistration springAuthDemoClient = ClientRegistrations.fromIssuerLocation("http://localhost:9090")
-                .registrationId("oauth-demo-registration-id")
-                .clientId("oauth-demo-client-id")
-                .clientSecret("secret")
-                .clientName("Resource Client Demo")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE 방식, code_challenge code_verifier 를 사용
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-redirect")
-                .scope(OidcScopes.OPENID, OidcScopes.PROFILE, OidcScopes.EMAIL)
-                .build();
+    public ClientRegistrationRepository clientRegistrationRepository(Environment env) {
+        List<ClientRegistration> clientRegistrations = new ArrayList<>();
+        try {
+            ClientRegistration springAuthDemoClient = null;
+            if (env.acceptsProfiles(Profiles.of("oidc"))) {
+                // oidc 를 지원할 경우 /.well-known/openid-configuration URL 을 통해
+                // auth code, token, userinfo 를 가져오는 url 을 자동으로 등록한다
+                springAuthDemoClient = ClientRegistrations.fromIssuerLocation("http://localhost:9090")
+                        .registrationId("oauth-demo-registration-id")
+                        .clientId("oauth-demo-client-id")
+                        .clientSecret("secret")
+                        .clientName("Resource Client Demo")
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // PKCE 방식, code_challenge code_verifier 를 사용
+                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-redirect")
+                        .scope(OidcScopes.OPENID, OidcScopes.PROFILE, OidcScopes.EMAIL)
+                        .build();
+            } else if (env.acceptsProfiles(Profiles.of("opaque"))) {
+                // http://localhost:9090/.well-known/oauth-authorization-server
+                springAuthDemoClient = ClientRegistration.withRegistrationId("oauth-demo-registration-id")
+                        .authorizationUri("http://localhost:9090/oauth2/authorize")
+                        .tokenUri("http://localhost:9090/oauth2/token")
+                        .userInfoUri("http://localhost:7070/userinfo")
+                        .clientId("oauth-demo-client-id")
+                        .clientSecret("secret")
+                        .clientName("Resource Client Demo")
+                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC) // HTTP Basic 인증 헤더사용, Authorization 헤더에 client secret Base64
+                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                        .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oauth-client-redirect")
+                        .userNameAttributeName(IdTokenClaimNames.SUB) // oauth2.0 은 username attribute 도 지정해줘야함.
+                        .scope("email", "profile")
+                        .build();
+            }
+            clientRegistrations.add(springAuthDemoClient);
+        } catch (Exception e) {
+            log.error("oauth-demo-registration-id Authorization Server is not available. " +
+                    "ClientRegistration will not be registered, errorType:{}, msg:{}", e.getClass().getSimpleName(), e.getMessage());
+        }
+        try {
+            // kakao 에선 oidc 를 지원한다.
+            // https://kauth.kakao.com/.well-known/openid-configuration
+            ClientRegistration kakaoAuthClient = ClientRegistrations.fromIssuerLocation("https://kauth.kakao.com")
+                    .registrationId("kakao-auth-registration-id")
+                    .clientId(kakaoOAuthClientId)
+                    .clientSecret(kakaoOAuthClientSecret)
+                    .clientName("Kakao OAuth Client Demo")
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST) // Form 데이터 형태로 client secret Base64
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .redirectUri("http://127.0.0.1:8080/login/oauth2/code/kakao-auth-redirect")
+                    .userNameAttributeName(IdTokenClaimNames.SUB) // default 가 sub
+                    .scope(OidcScopes.OPENID) // https://developers.kakao.com/docs/latest/ko/kakaologin/utilize#scope-user
+                    .build();
+            clientRegistrations.add(kakaoAuthClient);
+        } catch (Exception e) {
+            log.error("kakao-auth-registration-id Authorization Server is not available. " +
+                    "ClientRegistration will not be registered, errorType:{}, msg:{}", e.getClass().getSimpleName(), e.getMessage());
+        }
+
         // naver 에선 oauth 2.0 만 지원, 각종 oauth 관련 url 을 수기로 작성해줘야 한다.
         ClientRegistration naverAuthClient = ClientRegistration.withRegistrationId("naver-auth-registration-id")
                 .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
@@ -89,22 +140,10 @@ public class ResourceClientConfig {
                 .userNameAttributeName("response") // 응답값중 username 값을 가지고 있는 json key 값, naver 의 경우 response 로 한겹 더 감싸져있어 부득이하기 부모 key 값을 써야함
                 .scope("name", "email")
                 .build();
-
-        // kakao 에선 oidc 를 지원한다.
-        // https://kauth.kakao.com/.well-known/openid-configuration
-        ClientRegistration kakaoAuthClient = ClientRegistrations.fromIssuerLocation("https://kauth.kakao.com")
-                .registrationId("kakao-auth-registration-id")
-                .clientId(kakaoOAuthClientId)
-                .clientSecret(kakaoOAuthClientSecret)
-                .clientName("Kakao OAuth Client Demo")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST) // Form 데이터 형태로 client secret Base64
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/kakao-auth-redirect")
-                .userNameAttributeName(IdTokenClaimNames.SUB) // default 가 sub
-                .scope(OidcScopes.OPENID) // https://developers.kakao.com/docs/latest/ko/kakaologin/utilize#scope-user
-                .build();
         /* { resultcode=00, message=success, response={id=xqmroU.., name=홍길동, email=kouzie@naver.com} } */
-        return new InMemoryClientRegistrationRepository(springAuthDemoClient, naverAuthClient, kakaoAuthClient);
+        clientRegistrations.add(naverAuthClient);
+
+        return new InMemoryClientRegistrationRepository(clientRegistrations);
     }
 
 
@@ -114,13 +153,14 @@ public class ResourceClientConfig {
                 .requestMatchers("/")
                 .requestMatchers("/login")
                 .requestMatchers("/error")
+                .requestMatchers("/favicon.ico")
                 .requestMatchers("/h2-console/**");
     }
 
     public HttpSecurity setDefaultHttpSecurity(ClientRegistrationRepository clientRegistrationRepository,
-                                                      OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
-                                                      ResourceClientUserService resourceClientUserService,
-                                                      HttpSecurity http) throws Exception {
+                                               OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
+                                               ResourceClientUserService resourceClientUserService,
+                                               HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
@@ -130,7 +170,8 @@ public class ResourceClientConfig {
                         .loginPage("/login") // custom login page 지정
                         .userInfoEndpoint(userinfo -> userinfo // userinfo 요청 처리 객체
                                 .userService(new DelegatingOAuth2UserService(List.of(
-                                        new NaverOAuth2UserService(resourceClientUserService)
+                                        new NaverOAuth2UserService(resourceClientUserService),
+                                        new SpringOAuth2UserService()
                                 )))
                                 .oidcUserService(new DelegatingOAuth2UserService(List.of(
                                         new KakaoOidc2UserService(resourceClientUserService),
@@ -166,9 +207,9 @@ public class ResourceClientConfig {
     @Bean
     @Profile("session")
     public SecurityFilterChain securityFilterChainSession(ClientRegistrationRepository clientRegistrationRepository,
-                                                   OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
-                                                   ResourceClientUserService resourceClientUserService,
-                                                   HttpSecurity http) throws Exception {
+                                                          OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
+                                                          ResourceClientUserService resourceClientUserService,
+                                                          HttpSecurity http) throws Exception {
         setDefaultHttpSecurity(clientRegistrationRepository,
                 oAuth2AuthorizedClientService,
                 resourceClientUserService,
@@ -180,11 +221,11 @@ public class ResourceClientConfig {
     @Bean
     @Profile("jwt")
     public SecurityFilterChain securityFilterChainJwt(ClientRegistrationRepository clientRegistrationRepository,
-                                                   OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
-                                                   ResourceClientUserService resourceClientUserService,
-                                                   OAuthLoginSuccessHandler oAuthLoginSuccessHandler,
-                                                   JwtUtil jwtUtil,
-                                                   HttpSecurity http) throws Exception {
+                                                      OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
+                                                      ResourceClientUserService resourceClientUserService,
+                                                      OAuthLoginSuccessHandler oAuthLoginSuccessHandler,
+                                                      JwtUtil jwtUtil,
+                                                      HttpSecurity http) throws Exception {
         setDefaultHttpSecurity(clientRegistrationRepository,
                 oAuth2AuthorizedClientService,
                 resourceClientUserService,

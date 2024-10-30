@@ -25,7 +25,7 @@ public class PrintResponseBodyFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, responseWrapper);
         // 응답 본문을 디버그 콘솔에 출력
         String responseBody = responseWrapper.getResponseBody();
-        log.debug("print:" + responseBody); // 또는 디버그 창에서 확인
+        log.trace("print:" + responseBody); // 또는 디버그 창에서 확인
         // 원래 응답 객체에 동일한 응답 본문을 다시 작성
         response.getOutputStream().write(responseBody.getBytes("UTF-8"));
         response.getOutputStream().flush();

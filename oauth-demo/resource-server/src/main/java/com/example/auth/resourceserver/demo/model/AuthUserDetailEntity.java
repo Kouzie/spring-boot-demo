@@ -1,4 +1,4 @@
-package com.example.auth.resourceclient.demo.model;
+package com.example.auth.resourceserver.demo.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

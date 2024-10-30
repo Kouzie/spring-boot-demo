@@ -24,6 +24,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        // naver kakao springdemo oauth version 상관없이 client 용 jwt 토큰 설정
         String token = jwtUtil.createJwt(oAuth2User, 60 * 60 * 60L);
         response.addCookie(createCookie("Authorization", token));
         response.sendRedirect("http://127.0.0.1:8080/main");

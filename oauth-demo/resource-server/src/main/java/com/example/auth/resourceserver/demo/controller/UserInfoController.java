@@ -1,20 +1,21 @@
-package com.example.auth.resourceclient.demo.controller;
+package com.example.auth.resourceserver.demo.controller;
 
-import com.example.auth.resourceclient.demo.model.AuthUserDetailEntity;
-import com.example.auth.resourceclient.demo.model.AuthUserDetailService;
+import com.example.auth.resourceserver.demo.model.AuthUserDetailEntity;
+import com.example.auth.resourceserver.demo.model.AuthUserDetailService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import java.util.Map;
 public class UserInfoController {
     private final AuthUserDetailService service;
     private final FilterChainProxy filterChainProxy;
+    private final Environment env;
 
     @PostConstruct
     public void printSecurityFilters() {
@@ -36,7 +38,6 @@ public class UserInfoController {
             }
         }
     }
-
     /*
     Security Filter Chain: DefaultSecurityFilterChain
     class org.springframework.security.web.session.DisableEncodeUrlFilter
@@ -54,24 +55,22 @@ public class UserInfoController {
     class org.springframework.security.web.access.ExceptionTranslationFilter
     class org.springframework.security.web.access.intercept.AuthorizationFilter
     */
+
     @GetMapping("/userinfo")
     public Map<String, Object> getUserinfo() {
-        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> claims = authentication.getToken().getClaims();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String uname = authentication.getName();
-        OidcUserInfo.Builder oidcUserInfoBuilder = OidcUserInfo.builder()
-                .claims(c -> c.putAll(claims));
-        List<String> scopes = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-        if (scopes.contains("SCOPE_profile")) {
+        AbstractOAuth2TokenAuthenticationToken<?> oAuth2TokenAuthenticationToken = (AbstractOAuth2TokenAuthenticationToken<?>) authentication;
+        Map<String, Object> response = new HashMap<>();
+        if (oAuth2TokenAuthenticationToken.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("SCOPE_profile"))) {
             AuthUserDetailEntity entity = service.getUserById(uname);
-            oidcUserInfoBuilder
-                    .nickname(entity.getNickname())
-                    .phoneNumber(entity.getPhone())
-                    .birthdate(entity.getBirth())
-                    .gender(entity.getGender());
+            response.putAll(oAuth2TokenAuthenticationToken.getTokenAttributes());
+            response.put("nickname", entity.getNickname());
+            response.put("phone_number", entity.getPhone());
+            response.put("birthdate", entity.getBirth());
+            response.put("gender", entity.getGender());
         }
-        return oidcUserInfoBuilder.build().getClaims();
+        return response;
     }
 }
