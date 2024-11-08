@@ -1,0 +1,23 @@
+ext {
+    springStatemachineVersion = '4.0.0'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.statemachine:spring-statemachine-starter'
+    //implementation 'org.springframework.statemachine:spring-statemachine-data-jpa'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.30.0'
+    // state machine redis 와 redisson 모두 kyro 를 사용하는 바람에 충돌 발생, 최신 라이브러리 사용
+    implementation 'com.esotericsoftware.kryo:kryo:2.24.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.statemachine:spring-statemachine-data-redis'
+    implementation 'com.h2database:h2' // 테스트시엔 h2 사용
+
+    testImplementation 'org.springframework.statemachine:spring-statemachine-test'
+
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.statemachine:spring-statemachine-bom:${springStatemachineVersion}"
+    }
+}
