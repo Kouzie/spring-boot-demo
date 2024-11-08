@@ -1,6 +1,7 @@
 rootProject.name = 'boot-demo'
 include 'mqtt-demo'
 include 'redis-demo'
+include 'redis-demo:annotation'
 include 'websock-demo'
 include 'mapper-demo'
 include 'batch-demo'

@@ -1,5 +1,8 @@
 package com.example.redis.service;
 
+import com.example.redis.annotation.DistributedLock;
+import com.example.redis.aop.LockUtil;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -14,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 public class DistributedLockService {
 
     private final RedissonClient redissonClient;
+    private final LockUtil lockUtil;
+    @Getter
     private Integer count = 0;
 
     public void executeWithLock(String lockKey) {
@@ -29,7 +34,7 @@ public class DistributedLockService {
                 // 비즈니스 로직 실행
                 for (int i = 0; i < 10; i++) {
                     log.info("business code invoked");
-                    Thread.sleep(2000);
+                    count += 1;
                 }
                 log.info("business end");
             } else {
@@ -41,18 +46,32 @@ public class DistributedLockService {
         } finally {
             log.info("finally invoked");
             if (isLocked) {
-                lock.unlock();
+                lock.unlock(); // TTL 을 넘길경우 unlock 호출시 IllegalMonitorStateException 발생
+                log.info("Lock released.");
             }
         }
     }
 
-    public void executeWithoutLock() {
-        try {
-            Thread.sleep(100);
+    @DistributedLock
+    public void executeWithAopLock(String lockKey) {
+        // 비즈니스 로직 실행
+        log.info("business code invoked");
+        for (int i = 0; i < 10; i++) {
             count += 1;
-            log.info("Lock acquired. Executing protected code. counter:{}", count);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
+        log.info("business end");
+    }
+
+
+    public void executeWithSupplierLock() {
+        String result = lockUtil.withLock("executeWithSupplierLock", () -> {
+            // 비즈니스 로직 실행
+            log.info("business code invoked");
+            for (int i = 0; i < 10; i++) {
+                count += 1;
+            }
+            log.info("business end");
+            return "test end";
+        });
     }
 }

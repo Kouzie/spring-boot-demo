@@ -15,15 +15,26 @@ public class RedissonController {
 
     private final DistributedLockService lockService;
 
+    @GetMapping("/count")
+    public Integer getCount() {
+        return lockService.getCount();
+    }
+
     @GetMapping("/test")
     public String testLock() {
         lockService.executeWithLock("testLock");
         return "Lock test executed";
     }
 
-    @GetMapping("/test/without/lock")
+    @GetMapping("/test/aop")
+    public String testAopLock() {
+        lockService.executeWithAopLock("test");
+        return "Lock test executed";
+    }
+
+    @GetMapping("/test/util")
     public String testNonLock() {
-        lockService.executeWithoutLock();
-        return "Without Lock test executed";
+        lockService.executeWithSupplierLock();
+        return "Lock test executed";
     }
 }

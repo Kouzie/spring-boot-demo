@@ -53,5 +53,10 @@ public class CustomerContract implements Serializable {
 
 ```shell
 for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test & done; wait
-for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test/without/lock & done; wait
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test/aop & done; wait
+for i in {1..100}; do curl -s http://localhost:8080/distribute-lock/test/util & done; wait
+```
+
+```shell
+curl -s http://localhost:8080/distribute-lock/count
 ```

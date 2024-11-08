@@ -1,6 +1,8 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.redisson:redisson-spring-boot-starter:3.30.0'
-
+    implementation project(':redis-demo:annotation')
+    annotationProcessor project(':redis-demo:annotation')
 }
