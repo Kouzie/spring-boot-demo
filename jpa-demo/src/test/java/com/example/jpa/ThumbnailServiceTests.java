@@ -1,10 +1,10 @@
 package com.example.jpa;
 
 
-import com.example.jpa.model.baord.Board;
-import com.example.jpa.model.baord.Thumbnail;
-import com.example.jpa.service.board.BoardService;
-import com.example.jpa.service.board.ThumbnailService;
+import com.example.jpa.board.model.Board;
+import com.example.jpa.board.model.Thumbnail;
+import com.example.jpa.board.BoardService;
+import com.example.jpa.board.ThumbnailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
