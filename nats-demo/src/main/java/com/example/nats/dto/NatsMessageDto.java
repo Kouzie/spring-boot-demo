@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TopicMessageDto {
-    private String topic;
+public class NatsMessageDto {
+    private String subject;
     private String message;
-    private String reply; // reply topic
+    private String replyTo; // reply topic
 }

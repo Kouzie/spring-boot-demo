@@ -16,7 +16,7 @@ import java.time.Duration;
 @Configuration
 public class NatsConfig {
 
-    @Value("${nats.stream.uri}")
+    @Value("${nats.core.uri}")
     private String uri;
 
     @Bean

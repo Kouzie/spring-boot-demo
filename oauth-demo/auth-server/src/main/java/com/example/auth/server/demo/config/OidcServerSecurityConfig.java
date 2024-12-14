@@ -13,10 +13,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -78,12 +74,13 @@ public class OidcServerSecurityConfig {
     @Bean
     public OAuth2TokenCustomizer<OAuth2TokenClaimsContext> accessTokenCustomizer(CustomOidcUserInfoService userInfoService) {
         return (OAuth2TokenClaimsContext context) -> {
-            context.getClaims();
             OidcUserInfo userInfo = userInfoService.loadUser(context.getPrincipal().getName());
             context.getClaims().claims(claims -> claims.putAll(userInfo.getClaims()));
         };
     }
 
+    // JwtGenerator 에서 jwt token 을 생성할 때 고정된 claims 로만 Jwt 토큰을 만듬, 그외의정보는 userinfo 요청에서 반환하는것이 정석
+    // id token 에 email 정보도 넢고싶은데 바로 넢을수 있는 방법이 없어 customizer 를 정의함
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> idTokenCustomizer(CustomOidcUserInfoService userInfoService) {
         return (JwtEncodingContext context) -> {

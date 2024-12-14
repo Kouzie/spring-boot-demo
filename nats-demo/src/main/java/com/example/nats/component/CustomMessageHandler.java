@@ -1,5 +1,6 @@
 package com.example.nats.component;
 
+import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +13,13 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class CustomMessageHandler implements MessageHandler {
 
-    private final NatsPublisher publisher;
+    private final Connection natsConnection;
 
     @Override
     public void onMessage(Message msg) {
         log.info("subject:{}, message:{}", msg.getSubject(), new String(msg.getData()));
         if (StringUtils.hasText(msg.getReplyTo())) {
-            publisher.publish(msg.getReplyTo(), "OK RECEIVED");
+            natsConnection.publish(msg.getReplyTo(), "OK RECEIVED".getBytes());
         }
     }
 }
