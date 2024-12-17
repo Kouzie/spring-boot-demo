@@ -38,4 +38,5 @@ include ':oauth-demo:auth-server'
 include ':oauth-demo:resource-server'
 include ':oauth-demo:resource-client'
 include ':statemachine-demo'
+include ':mongodb-demo'
 

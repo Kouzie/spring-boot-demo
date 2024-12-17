@@ -1,0 +1,16 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb_container
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: testdb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb_data:/data/db
+      - ./mongodb-keyfile:/data/keyfile # keyFile 추가
+      - ./init-mongo.js:/init/init-mongo.js
+    command: mongod --replSet rs0 --bind_ip_all --keyFile /data/keyfile

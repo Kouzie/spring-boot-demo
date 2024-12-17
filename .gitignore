@@ -6,6 +6,7 @@ data/
 !**/src/test/**/build/
 *.class
 .DS_Store
+mongodb-demo/mongodb_data/
 
 ### STS ###
 .apt_generated
