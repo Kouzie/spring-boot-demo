@@ -19,7 +19,7 @@ public class FlexibleMapperController {
 
     public FlexibleMapperController() {
         this.mapper = new ObjectMapper();
-        this.mapper.setPropertyNamingStrategy(new FlexibleNamingStrategy());
+        this.mapper.setPropertyNamingStrategy(new FlexibleNamingStrategy()); // camel, snake 모두 지원
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     }

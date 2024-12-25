@@ -11,6 +11,6 @@ services:
       - "27017:27017"
     volumes:
       - ./mongodb_data:/data/db
-      - ./mongodb-keyfile:/data/keyfile # keyFile 추가
+      - ./mongodb-keyfile:/data/keyfile:ro # keyFile 추가
       - ./init-mongo.js:/init/init-mongo.js
     command: mongod --replSet rs0 --bind_ip_all --keyFile /data/keyfile

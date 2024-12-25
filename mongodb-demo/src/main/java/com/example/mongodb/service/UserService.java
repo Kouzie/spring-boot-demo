@@ -1,10 +1,7 @@
 package com.example.mongodb.service;
 
 import com.example.mongodb.controller.dto.CreateUserRequestDto;
-import com.example.mongodb.model.UserDetailDocument;
-import com.example.mongodb.model.UserDetailDocumentRepository;
-import com.example.mongodb.model.UserDocument;
-import com.example.mongodb.model.UserDocumentRepository;
+import com.example.mongodb.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,11 +13,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserDocumentService {
+public class UserService {
 
-    private final UserDocumentRepository userRepository;
+    private final UserRepository userRepository;
     private final UserDetailDocumentRepository userDetailRepository;
     private final MongoTemplate mongoTemplate;
+
 
     public List<UserDocument> getAllUsers() {
         return mongoTemplate.findAll(UserDocument.class);

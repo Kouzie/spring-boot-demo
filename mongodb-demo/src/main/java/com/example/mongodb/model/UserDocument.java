@@ -13,8 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class UserDocument {
   @Id
-  public String id;
-  @Indexed(unique = true) // 이메일을 유니크한 인덱스로 설정
+  private String id;
+  @Indexed(unique = true) // 사용자 계정 인덱스로 설정
   private String username;
   private String email;
 

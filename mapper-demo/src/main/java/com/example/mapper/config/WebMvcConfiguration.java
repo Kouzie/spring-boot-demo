@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -86,6 +87,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false); // InvalidDefinitionException, empty Object -> {}
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // UnrecognizedPropertyException 처리
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true); // empty array as null
+
+        // parameter-names 등록 (default constructor 없이 역직렬화 지원)
+        objectMapper.registerModule(new ParameterNamesModule());
         return objectMapper;
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "user_details") // MongoDB의 컬렉션 이름
 public class UserDetailDocument {
   @Id
-  public String userId;
+  private String userId;
   private Integer age;
   private String gender;
   private String nickname;
