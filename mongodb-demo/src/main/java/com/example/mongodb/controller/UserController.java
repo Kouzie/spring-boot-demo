@@ -28,6 +28,11 @@ public class UserController {
         return userService.createUser(user);
     }
 
+    @PutMapping("/{id}")
+    public UserDocument updateUser(@PathVariable String id, @RequestBody CreateUserRequestDto user) {
+        return userService.updateUserBySession3(id, user);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
@@ -37,11 +42,11 @@ public class UserController {
      * username과 email로 동적 사용자 조회
      */
     @GetMapping("/search")
-    public List<UserDocument> getUserByParam(@RequestParam String username,
-                                             @RequestParam(required = false) String email
-    ) {
-        List<UserDocument> users = userService.getUserByParam(username, email);
-        return users;
+    public UserDocument getUserByParam(@RequestParam String username,
+                                       @RequestParam String email) {
+        // List<UserDocument> users = userService.getUserByParam(username, email);
+        UserDocument user = userService.getUserByUsernameAndEmail(username, email);
+        return user;
     }
 
     /**

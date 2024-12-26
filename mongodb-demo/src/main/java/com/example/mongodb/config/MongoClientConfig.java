@@ -8,6 +8,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.convert.*;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -33,12 +36,23 @@ public class MongoClientConfig extends AbstractMongoClientConfiguration {
     @Value("${mongodb.database}")
     private String databaseName;
 
+    @Bean
+    public MongoClient mongoClient() {
+        String connection = "mongodb://" + username + ":" + password + "@" + host + ":27017/" + databaseName + "?replicaSet=rs0";
+        return MongoClients.create(new ConnectionString(connection)); // MongoDB 연결 URI
+    }
+
     /**
      * Replica Set 에서 동작할 MongoTransactionManager Bean 생성
      */
     @Bean
     public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
+    }
+
+    @Bean
+    public TransactionTemplate transactionTemplate(MongoTransactionManager transactionManager) {
+        return new TransactionTemplate(transactionManager);
     }
 
     @Bean
@@ -72,15 +86,6 @@ public class MongoClientConfig extends AbstractMongoClientConfiguration {
         // _class 필드 제거
         converter.setTypeMapper(new DefaultMongoTypeMapper(null));
         return converter;
-    }
-
-    @Override
-    protected MongoClientSettings mongoClientSettings() {
-        String connection = "mongodb://" + username + ":" + password + "@" + host + ":27017/" + databaseName + "?replicaSet=rs0";
-        ConnectionString connectionString = new ConnectionString(connection);
-        return MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .build();
     }
 
     @Override
