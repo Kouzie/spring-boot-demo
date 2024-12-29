@@ -1,0 +1,7 @@
+dependencies {
+    // session security 테스트용
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // thymleaf sec 사용
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.3.RELEASE'
+
+}

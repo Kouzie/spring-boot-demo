@@ -1,10 +1,18 @@
-## preview
+## REST Login
 
-spring security demo
+```shell
+TOKEN=$(curl -X POST http://localhost:8080/auth/login_demo \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "admin",
+  "password": "admin"
+}' | jq -r '.jwtToken')
 
-아래 profiles 를 통해 `session[formLogin]` `rest[JWT]` 테스트 가능  
+curl -X GET http://localhost:8080/sample/admin \
+-H "Authorization: Bearer $TOKEN"
+
+curl -X GET http://localhost:8080/sample/custom/1 \
+-H "Authorization: Bearer $TOKEN"
 
 ```
-spring.profiles.active=session
-spring.profiles.active=rest
-```
+
