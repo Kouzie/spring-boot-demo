@@ -11,12 +11,28 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER = "Bearer";
+    private final List<String> ignoreUrls;
+
+    public JwtFilter(List<String> ignoreUrls) {
+        this.ignoreUrls = ignoreUrls;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return ignoreUrls.contains(request.getRequestURI());
+    }
+
+    @Override
+    protected boolean shouldNotFilterErrorDispatch() {
+        return super.shouldNotFilterErrorDispatch();
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {

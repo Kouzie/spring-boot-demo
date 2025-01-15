@@ -22,6 +22,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -46,7 +47,7 @@ public class RestSecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler())
                 )
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+                .addFilterBefore(new JwtFilter(List.of("/login")), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
         return http.build();
     }
 
