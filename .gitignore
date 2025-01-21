@@ -42,3 +42,4 @@ out/
 app/customer/src/main/resources/application-dev.properties
 app/device/src/main/resources/application-dev.properties
 app/admin/src/main/resources/application-dev.properties
+/micrometer-demo/docker-struct/volume
