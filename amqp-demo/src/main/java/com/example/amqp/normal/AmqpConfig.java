@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import jakarta.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 @Profile("amqp")
@@ -42,8 +42,13 @@ public class AmqpConfig {
         String amqQueueName = "demoQueue";
         Connection amqConn = factory.newConnection("demo");
         Channel channel = amqConn.createChannel();
-        //queueName, durable,  exclusive, autoDelete, arguments
-        amqQueueName = channel.queueDeclare(amqQueueName, true, false, false, null).getQueue();
+        // 설정이 변경되면 기존 큐를 삭제하고 새로 생성해야함
+        Map<String, Object> arguments = Map.of(
+                "x-message-ttl", 60000,
+                "x-max-length" , 10 // 최대 메시지 개수를 1000으로 제한
+
+        );
+        amqQueueName = channel.queueDeclare(amqQueueName, true, false, false, arguments).getQueue();
         // queueName: 큐의 이름
         // durable: 서버 재시작에도 살아남을 튼튼한(?) 큐로 선언할 것인지 여부
         // exclusive: 현재의 연결에 한정되는 배타적인 큐로 선언할 것인지 여부
