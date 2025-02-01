@@ -10,6 +10,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SpringConfig {
 
+//    @Bean
+//    public DataSource dataSource() {
+//        HikariDataSource dataSource = new HikariDataSource();
+//        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/demo?&useUnicode=true&serverTimezone=Asia/Seoul");
+//        dataSource.setUsername("root");
+//        dataSource.setPassword("root");
+//        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+//        dataSource.setAutoCommit(false); // default true
+//        dataSource.setPoolName("MyPool");
+//        dataSource.getHikariConfigMXBean().setMinimumIdle(5); // 최소 유지할 커넥션 수
+//        dataSource.getHikariConfigMXBean().setMaximumPoolSize(20); // 최대 커넥션 수
+//        dataSource.getHikariConfigMXBean().setIdleTimeout(30000); // 커넥션이 유휴 상태로 유지되는 시간(ms)
+//        dataSource.getHikariConfigMXBean().setConnectionTimeout(20000); // 커넥션 획득 대기 시간(ms)
+//        dataSource.getHikariConfigMXBean().setMaxLifetime(1800000); // 커넥션 최대 수명(ms)
+//        return dataSource;
+//    }
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();

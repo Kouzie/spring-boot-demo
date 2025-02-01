@@ -2,14 +2,14 @@ package com.example.jpa.board;
 
 import com.example.jpa.board.model.Board;
 import com.example.jpa.board.model.BoardRepository;
-import jakarta.annotation.PostConstruct;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.LockModeType;
 import java.util.List;
 
 @Slf4j
@@ -17,11 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository repository;
-
-    @PostConstruct
-    private void init() {
-
-    }
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -49,6 +44,7 @@ public class BoardService {
         return repository.save(board);
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Board> findAll() {
         return repository.findAll();
     }
