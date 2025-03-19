@@ -1,10 +1,13 @@
 package com.example.config.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 public class FullNameConfig {
@@ -23,12 +26,13 @@ public class FullNameConfig {
 
     private final Environment env;
 
+    @PostConstruct
     public void printConfig() {
-        System.out.println("FullNameConfig App Name: " + appName);
-        System.out.println("FullNameConfig App Version: " + appVersion);
-        System.out.println("FullNameConfig App Unknown: " + unknown);
-        System.out.println("FullNameConfig App Numbers: " + String.join(",", numbers));
-        System.out.println("FullNameConfig Env App Name: " + env.getProperty("app.name"));
-        System.out.println("FullNameConfig Env App Version: " + env.getProperty("app.version"));
+        log.info("FullNameConfig App Name: " + appName);
+        log.info("FullNameConfig App Version: " + appVersion);
+        log.info("FullNameConfig App Unknown: " + unknown);
+        log.info("FullNameConfig App Numbers: " + String.join(",", numbers));
+        log.info("FullNameConfig Env App Name: " + env.getProperty("app.name"));
+        log.info("FullNameConfig Env App Version: " + env.getProperty("app.version"));
     }
 }

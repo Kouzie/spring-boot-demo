@@ -1,6 +1,3 @@
-jar.enabled = false
-bootJar.enabled = true
-
 // gradle 전역변수 정의
 ext {
     EXT_TEST_VALUE = "test_value"
@@ -17,4 +14,8 @@ processResources {
 bootRun {
     systemProperty 'my.property', "hello"
     systemProperty 'my.name', "world"
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }

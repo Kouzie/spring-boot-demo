@@ -1,11 +1,14 @@
 package com.example.config.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+@Slf4j
 @Configuration
 @PropertySource("classpath:extra.properties")
 @RequiredArgsConstructor
@@ -19,10 +22,11 @@ public class ExtraConfig {
 
     private final Environment env;
 
+    @PostConstruct
     public void printConfig() {
-        System.out.println("ExtraConfig App Name: " + appName);
-        System.out.println("ExtraConfig App Version: " + appVersion);
-        System.out.println("ExtraConfig Env App Name: " + env.getProperty("test.name"));
-        System.out.println("ExtraConfig Env App Version: " + env.getProperty("test.version"));
+        log.info("ExtraConfig App Name: " + appName);
+        log.info("ExtraConfig App Version: " + appVersion);
+        log.info("ExtraConfig Env App Name: " + env.getProperty("test.name"));
+        log.info("ExtraConfig Env App Version: " + env.getProperty("test.version"));
     }
 }
