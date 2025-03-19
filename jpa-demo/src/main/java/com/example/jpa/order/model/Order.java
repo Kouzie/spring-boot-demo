@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.jpa.JpaDempApplication.lorem;
 import static com.example.jpa.JpaDempApplication.random;
 
 @Getter
@@ -22,8 +23,8 @@ public class Order {
     @EmbeddedId
     private OrderId orderId;
 
-//    @Embedded
-//    private Orderer orderer;
+    @Convert(converter = OrdererConverter.class)
+    private Orderer orderer;
 
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -58,6 +59,7 @@ public class Order {
             orderLines.add(ol);
         }
         order.orderId = new OrderId(UUID.randomUUID().toString());
+        order.orderer = new Orderer(lorem.getEmail(), lorem.getName());
         order.orderLines = orderLines;
         order.state = OrderState.PREPARING;
         order.version = 0;
