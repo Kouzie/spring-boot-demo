@@ -1,3 +1,12 @@
+version = '0.0.1-mapper-demo'
+
+// application.properties 에 정의된 @project.version@ 문자열을 replace 해서 classpath resource 폴더위치에 삽입함
+tasks.processResources {
+    filesMatching(["**/*.properties", "**/*.yml", "**/*.yaml"]) {
+        filter { line -> line.replace("@project.version@", project.version.toString()) }
+    }
+}
+
 dependencies {
     compileOnly 'org.mapstruct:mapstruct:1.4.2.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
