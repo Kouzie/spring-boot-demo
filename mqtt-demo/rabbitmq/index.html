@@ -1,0 +1,124 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인증서 및 개인 키 다운로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #status {
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>인증서 및 개인 키 다운로드</h2>
+        <input type="text" id="clientId" placeholder="Client ID 입력 (예: my-client-123)" value="my-client-123">
+        <button onclick="requestCertificate()">인증서 요청</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        async function requestCertificate() {
+            const clientId = document.getElementById('clientId').value;
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = '요청 중...';
+
+            try {
+                // POST 요청
+                const response = await fetch('http://localhost:8080/issue-certificate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `clientId=${encodeURIComponent(clientId)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP 오류: ${response.status}`);
+                }
+
+                // JSON 파싱
+                const data = await response.json();
+
+                // 인증서 다운로드
+                const certBlob = new Blob([data.certificate], { type: 'text/plain' });
+                const certUrl = URL.createObjectURL(certBlob);
+                const certLink = document.createElement('a');
+                certLink.href = certUrl;
+                certLink.download = 'client.crt';
+                certLink.click();
+                URL.revokeObjectURL(certUrl);
+
+                // 개인 키 다운로드
+                const keyBlob = new Blob([data.privateKey], { type: 'text/plain' });
+                const keyUrl = URL.createObjectURL(keyBlob);
+                const keyLink = document.createElement('a');
+                keyLink.href = keyUrl;
+                keyLink.download = 'client.key';
+                keyLink.click();
+                URL.revokeObjectURL(keyUrl);
+
+                statusDiv.textContent = 'client.crt와 client.key 파일이 다운로드되었습니다.';
+            } catch (error) {
+                statusDiv.textContent = `오류: ${error.message}`;
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

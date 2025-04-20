@@ -1,0 +1,20 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    container_name: rabbitmq
+    volumes:
+      - ./cert:/etc/rabbitmq/cert
+      - ./rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    ports:
+      - "5672:5672"    # AMQP 포트
+      - "8883:8883"    # MQTT TLS
+      - "15672:15672"  # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    command: >
+      bash -c "
+      rabbitmq-plugins enable --offline rabbitmq_management rabbitmq_mqtt rabbitmq_prometheus rabbitmq_auth_backend_http && 
+      rabbitmq-server
+      "
