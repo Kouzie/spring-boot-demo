@@ -19,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class RestSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // Form Login 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 관리 비활성화
+                // SecurityContextPersistenceFilter 에서 HttpSession 에 SecurityContext 를 저장하는것을 명시적으로 제거
+                // 다른 SecurityFilter 에서 HttpSession 객체에 접근하는것을 명시적으로 제거
                 .authorizeHttpRequests(auths -> auths
                         .requestMatchers("/boards/random").hasAnyRole(
                                 MemberRole.ADMIN.name(),
@@ -47,7 +50,12 @@ public class RestSecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler())
                 )
-                .addFilterBefore(new JwtFilter(List.of("/login")), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+                //.addFilterBefore(new JwtFilter(List.of("/login")), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
+                .securityContext(context -> context
+                        .securityContextRepository(new JwtSecurityContextRepository(List.of("/login")))
+                        .requireExplicitSave(true) // default true, saveContext 생략처리됨
+                )
+        ;
         return http.build();
     }
 
