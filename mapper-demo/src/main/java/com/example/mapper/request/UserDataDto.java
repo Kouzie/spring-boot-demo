@@ -1,4 +1,4 @@
-package com.example.localmessage.controller;
+package com.example.mapper.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -10,10 +10,11 @@ import lombok.ToString;
 @Setter
 @ToString
 public class UserDataDto {
-    @NotEmpty
+    // resources/ValidationMessages.properties 확인
+    @NotEmpty(message = "{user.id.notempty}")
     private String id;
-    @NotEmpty
+    @NotEmpty(message = "{user.name.notempty}")
     private String name;
-    @NotNull
+    @NotNull(message = "{user.age.notnull}")
     private Integer age;
 }

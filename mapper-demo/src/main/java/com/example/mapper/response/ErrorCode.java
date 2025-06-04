@@ -1,4 +1,4 @@
-package com.example.localmessage.controller;
+package com.example.mapper.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
