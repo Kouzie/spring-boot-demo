@@ -28,3 +28,12 @@ curl -X POST http://localhost:8080/redis-template/normal \
 ```shell
 curl -X GET "http://localhost:8080/redis-template/normal/john_doe"
 ```
+
+## user zset, hash 테스트
+
+```shell
+curl -X GET http://localhost:8080/user/A
+curl -X POST http://localhost:8080/user/A
+curl -X DELETE http://localhost:8080/user/A
+curl -X DELETE http://localhost:8080/user/A/user123
+```

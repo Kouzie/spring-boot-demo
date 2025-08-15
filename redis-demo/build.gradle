@@ -3,6 +3,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.redisson:redisson-spring-boot-starter:3.30.0'
+    // random 문자열 생성
+    implementation 'com.thedeanda:lorem:2.1'
     implementation project(':redis-demo:annotation')
     annotationProcessor project(':redis-demo:annotation')
 }
