@@ -1,0 +1,29 @@
+plugins {
+    id 'com.google.cloud.tools.jib' version '3.3.2' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'com.google.cloud.tools.jib'
+
+    dependencies {
+        implementation project(':observability-demo:common')
+    }
+    jib {
+        dockerClient.executable = "/usr/local/bin/docker"
+
+        from {
+            image = "openjdk:21-jdk-slim"
+        }
+        to {
+            image = "observability-demo/service/${project.name}:${project.version}"
+        }
+    }
+    tasks.processResources {
+        filesMatching(['**/*.properties', '**/*.yml', '**/*.yaml']) {
+            filter { line ->
+                line.replace('@project.version@', project.version)
+            }
+        }
+    }
+}

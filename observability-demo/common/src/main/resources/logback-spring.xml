@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <!--<version/>-->
+                <logLevel/>
+                <threadName/>
+                <loggerName/>
+                <mdc/> <!-- traceId, spanId 자동 포함 -->
+                <context/>
+                <message/>
+                <stackTrace/>
+            </providers>
+        </encoder>
+    </appender>
+    <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
+
+    <root level="info">
+        <appender-ref ref="OpenTelemetry"/>
+        <appender-ref ref="JSON_CONSOLE"/>
+    </root>
+</configuration>

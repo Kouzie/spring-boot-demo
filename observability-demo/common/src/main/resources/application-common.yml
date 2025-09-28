@@ -1,0 +1,25 @@
+logging:
+  level:
+    root: INFO
+management:
+  server:
+    port: 9000
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true # prometheus 의 메트릭 생성 여부
+  endpoint:
+    prometheus:
+      enabled: true # endpoint 활성화 여부
+metrics:
+  distribution:
+    percentiles-histogram:
+      http.server.requests: true
+  tracing:
+    enabled: true

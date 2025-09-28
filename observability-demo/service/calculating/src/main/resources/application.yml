@@ -1,0 +1,13 @@
+server:
+  port: 8080
+  version: '@project.version@'
+spring:
+  application:
+    name: service-calculating
+  profiles:
+    active: dev
+  config:
+    import: "classpath:application-common.yml"
+service:
+  greeting:
+    url: http://gretting:8080

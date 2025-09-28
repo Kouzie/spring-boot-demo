@@ -1,0 +1,13 @@
+bootJar.enabled = false
+jar.enabled = true
+
+dependencies {
+    api "io.micrometer:micrometer-registry-prometheus"
+    api "io.micrometer:micrometer-tracing-bridge-otel" // Micrometer → OTel 브리지, Tracer 빈 주입받아야되기에 api
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp" // OpenTelemetry Exporter
+    implementation "net.logstash.logback:logstash-logback-encoder:8.1"
+    // OTEL Log Exporter whit LOGBACK appender
+    def OTEL_LOGBACK_VERSION = "2.20.1-alpha"
+    implementation "io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:$OTEL_LOGBACK_VERSION" // otel collector 로 로그 전송
+    implementation "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$OTEL_LOGBACK_VERSION" // appender 와 logback mdc 통합
+}

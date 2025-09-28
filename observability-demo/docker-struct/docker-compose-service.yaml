@@ -1,0 +1,60 @@
+# 로깅 설정 앵커 정의
+x-logging-file: &custom-file-log
+  driver: "json-file"
+  options:
+    max-size: "10m" # 로그 파일 하나의 최대 크기 (10MB)
+    max-file: "3" # 최대 30MB
+x-java-opts: &default-java-opts
+  # Java 실행 옵션 최적화
+  # -XX:+UseContainerSupport  # 컨테이너 환경에서 JVM이 메모리 및 CPU 제한을 올바르게 인식하도록 설정
+  # -XX:MaxRAMPercentage=75.0  # 컨테이너의 사용 가능 메모리 중 75%를 최대 힙 크기로 사용
+  # -XX:+UseG1GC  # G1GC(Garbage First Garbage Collector) 사용 (대부분의 Java 애플리케이션에 적합)
+  # -XX:InitiatingHeapOccupancyPercent=30  # 힙 메모리가 30% 사용되면 GC 실행하여 멈춤 시간 최소화
+  # -XX:+ExitOnOutOfMemoryError  # OOM(Out of Memory) 발생 시 컨테이너가 강제 종료되도록 설정 (자동 복구 가능)
+  # -Dfile.encoding=UTF-8  # 기본 파일 인코딩을 UTF-8로 설정 (한글 메시지 깨짐 방지)
+  JAVA_OPTS: >-
+    -XX:+UseContainerSupport
+    -XX:MaxRAMPercentage=75.0
+    -XX:+UseG1GC
+    -XX:InitiatingHeapOccupancyPercent=30
+    -XX:+ExitOnOutOfMemoryError
+    -Dfile.encoding=UTF-8
+    -Dspring.profiles.active=dev
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.83.0
+    container_name: monitoring-otel-collector
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    networks:
+      default:
+        aliases:
+          - otel
+    volumes:
+      - ./etc/monitoring/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+  greeting:
+    image: observability-demo/service/greeting:0.0.1-SNAPSHOT
+    container_name: demo-greeting
+    logging: *custom-file-log # 앵커를 참조
+    ports:
+      - "8080:8080"
+      - "9000"
+    environment:
+      <<: *default-java-opts
+      SERVICE_CALCULATING_URL: http://calculating:8080
+    depends_on:
+      - otel-collector
+  calculating:
+    image: observability-demo/service/calculating:0.0.1-SNAPSHOT
+    container_name: demo-calculating
+    logging: *custom-file-log # 앵커를 참조
+    ports:
+      - "8081:8080"
+      - "9000"
+    environment:
+      <<: *default-java-opts
+      SERVICE_GREETING_URL: http://greeting:8080
+    depends_on:
+      - otel-collector

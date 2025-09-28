@@ -1,0 +1,1 @@
+!!Spring Boot Init!![${spring-boot.version}][${server.version}][${spring.profiles.active}][${spring.application.name}]

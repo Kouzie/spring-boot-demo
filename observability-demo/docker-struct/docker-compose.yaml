@@ -1,0 +1,115 @@
+# 로깅 설정 앵커 정의
+x-logging: &custom-fluentbit-log
+  driver: "fluentd"
+  options:
+    fluentd-address: ${FLUENTD_ADDRESS:-127.0.0.1:24224} # host pc 의 ip 를 지정
+    tag: "{{.Name}}"
+x-logging-file: &custom-file-log
+  driver: "json-file"
+  options:
+    max-size: "10m" # 로그 파일 하나의 최대 크기 (10MB)
+    max-file: "3" # 최대 30MB
+services:
+  # loki, fluentbit 가장 먼저 실행되어야함
+  loki:
+    image: grafana/loki:3.3.4
+    container_name: monitoring-loki
+    restart: always
+    logging: *custom-file-log # 앵커를 참조
+    user: "0:0" # root 사용자로 실행
+    volumes:
+      - ./etc/monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    expose:
+      - 3100
+  fluentbit:
+    image: fluent/fluent-bit:3.2.4
+    container_name: monitoring-fluentbit
+    restart: always
+    logging: *custom-file-log # 앵커를 참조
+    ports:
+      - "24224:24224" # Fluent Bit에서 로그 수집을 위한 포트
+    volumes:
+      - ./etc/monitoring/fluentbit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./etc/monitoring/parser-custom.conf:/fluent-bit/etc/parser-custom.conf
+    depends_on:
+      - loki
+  grafana:
+    image: grafana/grafana:11.3.2
+    container_name: monitoring-grafana
+    restart: always
+    logging: *custom-file-log # 앵커를 참조
+    user: "0:0" # root 사용자로 실행
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    ports:
+      - "3000:3000" # reverse proxy 설정으로 인해 nginx 를 통해서만 접근 가능
+    volumes:
+      - grafana:/var/lib/grafana
+      # https://github.com/grafana/grafana/blob/main/conf/defaults.ini
+      - ./etc/monitoring/grafana.ini:/etc/grafana/grafana.ini
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: monitoring-prometheus
+    restart: always
+    user: "0:0" # root 사용자로 실행, volume 권한문제
+    volumes:
+      - ./etc/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./etc/monitoring/rules.yml:/etc/prometheus/rules.yml
+      - prometheus:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d" # 30일 유지
+      - "--storage.tsdb.retention.size=15GB"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-remote-write-receiver"   # Tempo metrics_generator가 푸시받을 수 있게
+  tempo:
+    image: grafana/tempo:2.8.2
+    container_name: monitoring-tempo
+    restart: always
+    logging: *custom-file-log
+    user: "0:0" # root 사용자로 실행
+    command:
+      - "-config.file=/etc/tempo.yaml"
+    volumes:
+      - ./etc/monitoring/tempo.yaml:/etc/tempo.yaml
+      - tempo:/var/tempo
+    ports:
+      - "3200"   # HTTP API
+      - "4317"   # OTLP gRPC receiver
+      - "4318"   # OTLP HTTP receiver
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: monitoring-alertmanager
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./etc/monitoring/template:/etc/alertmanager/template
+      - ./etc/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  mongodb:
+    image: mongo:6.0
+    container_name: demo-mongo
+    restart: always
+    logging: *custom-fluentbit-log # 앵커를 참조
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
+volumes:
+  loki:
+    name: demo-loki
+  prometheus:
+    name: demo-prometheus
+  tempo:
+    name: demo-tempo
+  grafana:
+    name: demo-grafana
+  mongodb:
+    name: demo-mongodb
+
