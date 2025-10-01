@@ -22,7 +22,7 @@ x-java-opts: &default-java-opts
     -Dspring.profiles.active=dev
 services:
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.83.0
+    image: otel/opentelemetry-collector-contrib:0.101.0
     container_name: monitoring-otel-collector
     command: [ "--config=/etc/otel-collector-config.yaml" ]
     networks:

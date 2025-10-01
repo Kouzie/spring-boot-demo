@@ -31,18 +31,35 @@ exporters:
     endpoint: "tempo:4317"
     tls:
       insecure: true
+  clickhouse:
+    endpoint: tcp://clickhouse:9000
+    database: default
+    username: admin
+    password: demo123
+    logs_table_name: otel_logs
+    traces_table_name: otel_traces
+    timeout: 10s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+    sending_queue:
+      enabled: true
+      num_consumers: 10
+      queue_size: 10000
 
 service:
   pipelines:
     traces:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ otlp ]
+      exporters: [ otlp, clickhouse ]
     logs:
       receivers: [ otlp ]
       processors: [ batch ]
-      exporters: [ loki ]
+      exporters: [ loki, clickhouse ]
     metrics:
       receivers: [ prometheus ]
       processors: [ batch ]
-      exporters: [ prometheus ]
+      exporters: [ prometheus, clickhouse ]
