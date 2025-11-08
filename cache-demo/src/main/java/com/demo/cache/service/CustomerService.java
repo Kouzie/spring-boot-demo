@@ -1,6 +1,5 @@
 package com.demo.cache.service;
 
-import com.demo.cache.CustomerGenerator;
 import com.demo.cache.model.Customer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

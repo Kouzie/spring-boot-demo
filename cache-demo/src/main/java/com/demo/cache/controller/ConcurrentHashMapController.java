@@ -18,13 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @RequestMapping("/concurrent-hashmap")
 @RequiredArgsConstructor
 public class ConcurrentHashMapController {
-
-    @GetMapping("/size")
-    public Integer getTest() {
-        HashSet
-        return map.size();
-        ConcurrentSkipListSet
-    }
+    private final CustomerService customerService;
 
     @GetMapping
     public List<Customer> getAll(@RequestParam(required = false) List<String> ids) throws InterruptedException {

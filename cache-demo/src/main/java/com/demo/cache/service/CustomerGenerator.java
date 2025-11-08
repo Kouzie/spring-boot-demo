@@ -1,4 +1,4 @@
-package com.demo.cache;
+package com.demo.cache.service;
 
 import com.demo.cache.model.Customer;
 import com.demo.cache.model.CustomerType;
