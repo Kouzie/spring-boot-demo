@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.18.0.xsd">
+    <generator>
+        <database>
+            <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
+            <properties>
+                <property>
+                    <key>scripts</key>
+                    <value>src/main/resources/init.sql</value>
+                </property>
+                <property>
+                    <key>defaultNameCase</key>
+                    <value>lower</value>
+                </property>
+            </properties>
+            <!-- TIMESTAMP 타입을 Instant로 강제 매핑 -->
+            <forcedTypes>
+                <forcedType>
+                    <name>INSTANT</name>
+                    <types>TIMESTAMP</types>
+                </forcedType>
+            </forcedTypes>
+        </database>
+        <target>
+            <packageName>com.example.jooq.generated</packageName>
+            <directory>src/main/java</directory>
+        </target>
+        <generate>
+            <pojos>true</pojos>
+            <pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
+            <pojosToString>true</pojosToString>
+            <javaTimeTypes>true</javaTimeTypes>
+        </generate>
+    </generator>
+</configuration>

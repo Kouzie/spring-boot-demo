@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+    hikari:
+      maximum-pool-size: 50 # 스레드 수(500)의 10~20% 수준으로 설정.
+      minimum-idle: 10 # 코어 수(4) × 2~3배 정도로 설정
+      max-lifetime: 1800000  # 30분(기본값)
+      connection-timeout: 30000  # 30초(기본값)
+      idle-timeout: 600000  # 10분(기본값)
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:init.sql
+
+logging:
+  level:
+    org.jooq: DEBUG
+    org.springframework.jdbc: DEBUG
+
