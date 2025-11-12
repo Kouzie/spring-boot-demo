@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -68,5 +71,15 @@ public class BoardController {
         board.testOrphan();
         board = boardService.save(board);
         return board;
+    }
+
+    @GetMapping("/search")
+    public List<Board> search(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String writer,
+            @RequestParam(required = false) String content,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime regdateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime regdateTo) {
+        return boardService.search(title, writer, content, regdateFrom, regdateTo);
     }
 }

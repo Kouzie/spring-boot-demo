@@ -1,0 +1,16 @@
+# datasource config
+spring:
+  datasource:
+    url: jdbc:h2:mem:test;MODE=MYSQL;
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  # spring data jpa config
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  # h2 console access
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
