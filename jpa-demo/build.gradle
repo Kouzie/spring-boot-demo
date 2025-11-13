@@ -1,4 +1,5 @@
 def queryDslVersion = '5.0.0'
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -18,4 +19,25 @@ dependencies {
 
     // random 문자열 생성
     implementation 'com.thedeanda:lorem:2.1'
+}
+
+// QueryDSL QClass 생성 디렉토리 설정
+// 방법 1: build 디렉토리 (표준 방식, Git에 포함 안 됨)
+// 방법 2: src/main/generated (IDE 인식 용이, Git에 포함 주의)
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+//def querydslDir = file("src/main/generated")
+
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+// QueryDSL QClass 자동 생성 설정 (annotationProcessor가 자동 처리)
+// 현재 모듈(jpa-demo)에만 적용
+project.tasks.named('compileJava') {
+    options.generatedSourceOutputDirectory = file(querydslDir)
+}
+
+// clean 태스크에 QueryDSL 생성 파일 삭제 추가
+clean {
+    delete querydslDir
 }

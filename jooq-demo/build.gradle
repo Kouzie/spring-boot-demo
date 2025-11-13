@@ -1,9 +1,3 @@
-dependencies {
-    // JOOQ + Spring Data JDBC 함께 사용
-    implementation 'org.springframework.boot:spring-boot-starter-jooq'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc' // Spring Data JDBC 같이 테스트
-    implementation 'com.h2database:h2'
-}
 
 configurations {
     jooqCodegen {
@@ -12,6 +6,11 @@ configurations {
 }
 
 dependencies {
+    // JOOQ + Spring Data JDBC 함께 사용
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc' // Spring Data JDBC 같이 테스트
+    implementation 'com.h2database:h2'
+
     // JOOQ code generation (DDLDatabase 사용)
     // jooq-codegen은 Spring Boot가 관리하므로 버전 생략 가능
     // jooq-meta-extensions는 Spring Boot가 관리하지 않으므로 버전 명시 필요
@@ -19,6 +18,7 @@ dependencies {
     jooqCodegen 'org.jooq:jooq-meta-extensions:3.18.13'  // DDLDatabase 지원 (버전 명시 필요)
     jooqCodegen 'com.h2database:h2'
 }
+
 
 // JOOQ code generation 태스크 (DDLDatabase 방식: init.sql에서 직접 생성)
 task jooqCodegen(type: JavaExec) {
@@ -28,6 +28,6 @@ task jooqCodegen(type: JavaExec) {
 }
 
 // JOOQ code generation을 compileJava 전에 실행 (필요시 주석 해제)
-// tasks.named('compileJava') {
-//     dependsOn 'jooqCodegen'
-// }
+tasks.named('compileJava') {
+    dependsOn 'jooqCodegen'
+}
