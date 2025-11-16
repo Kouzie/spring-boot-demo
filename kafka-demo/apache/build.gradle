@@ -1,0 +1,20 @@
+subprojects {
+    dependencies {
+        implementation "org.apache.kafka:kafka-clients:3.1.2"
+    }
+}
+
+// common 모듈은 라이브러리 모듈로 설정
+project(":kafka-demo:apache:common") {
+    jar.enabled = true
+    bootJar.enabled = false
+}
+
+// common을 제외한 서브프로젝트에 common 의존성 추가
+configure([project(":kafka-demo:apache:kafka-clients"),
+           project(":kafka-demo:apache:kafka-producer")]) {
+    dependencies {
+        implementation project(":kafka-demo:apache:common")
+    }
+}
+

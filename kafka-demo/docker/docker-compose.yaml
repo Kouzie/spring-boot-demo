@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  kafka:
+    image: confluentinc/cp-kafka:8.1.0  # Kafka 3.8.x 기반, KRaft 지원. 필요 시 latest로 변경 가능
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - '9092:9092'  # 로컬 접근 포트
+      - '9101:9101'  # JMX 모니터링 (옵션)
+    environment:
+      KAFKA_NODE_ID: 1  # KRaft 모드에서 노드의 고유 ID
+      KAFKA_PROCESS_ROLES: 'broker,controller'  # 이 노드가 브로커와 컨트롤러 역할을 모두 수행
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_PLAINTEXT_HOST:SASL_PLAINTEXT'  # 각 리스너의 보안 프로토콜 매핑
+      # KAFKA_LISTENERS: 컨테이너 내부에서 실제로 리스닝하는 포트
+      # - SASL_PLAINTEXT://kafka:29092: 브로커 간 통신용 (컨테이너 내부 네트워크)
+      # - CONTROLLER://kafka:29093: KRaft 컨트롤러 통신용 (컨테이너 내부 네트워크)
+      # - SASL_PLAINTEXT_HOST://0.0.0.0:9092: 외부 클라이언트 접속용 (호스트에서 접근 가능)
+      KAFKA_LISTENERS: 'SASL_PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,SASL_PLAINTEXT_HOST://0.0.0.0:9092'
+      # KAFKA_ADVERTISED_LISTENERS: 클라이언트에게 알려줄 리스너 주소
+      KAFKA_ADVERTISED_LISTENERS: 'SASL_PLAINTEXT://kafka:29092,SASL_PLAINTEXT_HOST://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'SASL_PLAINTEXT'  # 브로커 간 통신에 사용할 리스너 이름
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'  # 컨트롤러 통신에 사용할 리스너 이름
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'  # KRaft 컨트롤러 쿼럼 투표자 목록 (노드ID@호스트:포트)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # __consumer_offsets 토픽의 복제 팩터 (단일 노드이므로 1)
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0  # 컨슈머 그룹 초기 리밸런스 지연 시간 (0 = 즉시)
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'  # KRaft 클러스터 ID
+      KAFKA_SASL_ENABLED_MECHANISMS: 'PLAIN'  # 활성화할 SASL 메커니즘
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: 'PLAIN'  # 브로커 간 통신에 사용할 SASL 메커니즘
+      KAFKA_OPTS: '-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf'  # JAAS 설정 파일 경로
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+      - ./kafka_server_jaas.conf:/etc/kafka/kafka_server_jaas.conf:ro
+      - ./client.properties:/etc/kafka/client.properties:ro
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 --command-config /etc/kafka/client.properties || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local  # Kafka UI에서 표시할 클러스터 이름
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Kafka 브로커 주소 (컨테이너 내부 네트워크)
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: SASL_PLAINTEXT  # 보안 프로토콜
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: PLAIN  # SASL 메커니즘
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";'  # Kafka UI 접속용 인증 정보
+      # KRaft 모드에서는 ZOOKEEPER 설정 불필요
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+volumes:
+  kafka_data:
+    driver: local

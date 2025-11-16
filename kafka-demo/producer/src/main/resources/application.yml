@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  profiles:
+    # active: apache
+    active: spring
+
+my:
+  kafka:
+    bootstrap:
+      servers: localhost:9092
+    producer:
+      username: producer
+      password: producer-secret
+    admin:
+      username: admin
+      password: admin-secret
+

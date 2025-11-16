@@ -1,0 +1,19 @@
+server:
+  port: 8082
+
+my:
+  kafka:
+    topic: test
+    group:
+      id:
+        config: testgroup
+    bootstrap:
+      servers:
+        config: localhost:9092
+    security:
+      protocol: SASL_PLAINTEXT
+    sasl:
+      mechanism: PLAIN
+      jaas:
+        config: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="consumer" password="consumer-secret";'
+

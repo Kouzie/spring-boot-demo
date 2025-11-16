@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+spring:
+  profiles:
+    # active: apache
+    active: spring
+
+my:
+  kafka:
+    bootstrap:
+      servers: localhost:9092
+    consumer:
+      username: consumer
+      password: consumer-secret
