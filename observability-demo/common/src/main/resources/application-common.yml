@@ -7,16 +7,19 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus, health, info
+        include: prometheus, health, info, threaddump
   metrics:
     tags:
       application: ${spring.application.name}
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true # prometheus 의 메트릭 생성 여부
   endpoint:
     prometheus:
       enabled: true # endpoint 활성화 여부
+    threaddump:
+      enabled: true
 metrics:
   distribution:
     percentiles-histogram:
