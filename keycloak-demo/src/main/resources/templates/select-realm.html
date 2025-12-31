@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: common-head('Login')}"></head>
+<body style="display:flex;justify-content:center;align-items:center;height:100vh">
+    <div class="card" style="width:300px;text-align:center">
+        <h2>Keycloak Realm</h2>
+        <form th:action="@{/select-realm}" method="post">
+            <input name="realm" placeholder="realm name" required autofocus>
+            <button style="width:100%">Enter</button>
+        </form>
+    </div>
+</body>
+</html>

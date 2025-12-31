@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: common-head('Profile')}"></head>
+<body class="container">
+    <div th:replace="~{layout :: nav}"></div>
+    <div class="card">
+        <p><b>User:</b> <span th:text="${username}"></span></p>
+        <p><b>Email:</b> <span th:text="${email}"></span></p>
+        <hr>
+        <h3>Admin Details</h3>
+        <div th:if="${keycloakUser}">
+            <p><b>ID:</b> <span th:text="${keycloakUser.id}"></span></p>
+            <p><b>Created:</b> <span th:text="${createdDate}"></span></p>
+            <p><b>Enabled:</b> <span th:text="${keycloakUser.enabled}"></span></p>
+            <p><b>First Name:</b> <span th:text="${keycloakUser.firstName}"></span></p>
+            <p><b>Last Name:</b> <span th:text="${keycloakUser.lastName}"></span></p>
+            <p><b>Email:</b> <span th:text="${keycloakUser.email}"></span></p>
+            
+            <hr>
+            <h4>Realm Roles</h4>
+            <ul>
+                <li th:each="role : ${keycloakUser.realmRoles}" th:text="${role}"></li>
+            </ul>
+
+            <hr>
+            <h4>Client Roles</h4>
+            <div th:if="${keycloakUser.clientRoles}">
+                <div th:each="entry : ${keycloakUser.clientRoles}">
+                    <b th:text="${entry.key} + ':'"></b>
+                    <ul>
+                        <li th:each="role : ${entry.value}" th:text="${role}"></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr>
+            <h4>Access</h4>
+            <ul th:if="${keycloakUser.access}">
+                <li th:each="entry : ${keycloakUser.access}" 
+                    th:text="${entry.key} + ': ' + ${entry.value}"></li>
+            </ul>
+        </div>
+        <p th:if="${apiError}" th:text="${apiError}" style="color:red"></p>
+    </div>
+</body>
+</html>

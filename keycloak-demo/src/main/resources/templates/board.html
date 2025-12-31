@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: common-head('Board')}"></head>
+<body class="container">
+    <div th:replace="~{layout :: nav}"></div>
+    <div class="card">
+        <input id="title" placeholder="Title">
+        <textarea id="content" placeholder="Content"></textarea>
+        <button onclick="add()">Post</button>
+    </div>
+    <div id="posts"></div>
+    <script>
+        const csrf = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        const add = () => fetch('/posts', {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'X-XSRF-TOKEN': csrf},
+            body: JSON.stringify({title: id('title').value, content: id('content').value})
+        }).then(r => r.ok && (location.reload()));
+        const del = id => fetch(`/posts/${id}`, {method: 'DELETE', headers: {'X-XSRF-TOKEN': csrf}}).then(r => r.ok && location.reload());
+        const id = i => document.getElementById(i);
+        fetch('/posts').then(r => r.json()).then(p => id('posts').innerHTML = Object.values(p).map(o => `
+            <div class="card"><h3>${o.title}</h3><p>${o.content}</p><button class="delete" onclick="del('${o.id}')">Del</button></div>
+        `).join(''));
+    </script>
+</body>
+</html>

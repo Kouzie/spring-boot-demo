@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common-head(title)">
+    <title th:text="${title}">App</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:fragment="nav" class="header">
+        <h1 th:text="${title}">Title</h1>
+        <div>
+            <span th:if="${username}" th:text="|Welcome, ${username}|"></span>
+            <a href="/profile" class="btn btn-gray">Profile</a>
+            <a href="/board" class="btn">Board</a>
+            <form th:action="@{/logout}" method="post" style="display:inline"><button class="btn-red">Logout</button></form>
+        </div>
+    </div>
+</body>
+</html>

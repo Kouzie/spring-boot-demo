@@ -45,3 +45,4 @@ app/admin/src/main/resources/application-dev.properties
 /micrometer-demo/docker-struct/volume
 /cache
 /jooq-demo/src/main/java/com/example/jooq/generated
+/keycloak-demo/docker/volumes
