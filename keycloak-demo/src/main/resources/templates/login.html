@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: common-head('Login')}"></head>
+<body class="container">
+    <div class="card" style="max-width:500px;margin:100px auto">
+        <h2 style="text-align:center">Keycloak Login</h2>
+        <form onsubmit="event.preventDefault(); window.location.href='/oauth2/authorization/' + document.getElementById('realm').value.trim()">
+            <label for="realm">Realm</label>
+            <input type="text" id="realm" name="realm" placeholder="master 또는 demo-realm" required autofocus>
+            <button type="submit" class="btn" style="width:100%;margin-top:10px">Login</button>
+        </form>
+    </div>
+</body>
+</html>

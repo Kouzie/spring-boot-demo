@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="common-head(title)">
+    <title th:text="${title}">Demo</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div th:fragment="nav" class="header">
+        <h2 style="margin:0;">Keycloak Demo</h2>
+        <div>
+            <span th:if="${username}" th:text="|User: ${username}|" style="margin-right:10px;"></span>
+            <a href="/profile" class="btn btn-gray">Profile</a>
+            <a href="/board" class="btn">Board</a>
+            <!-- Admin 권한이 있는 사용자에게만 Realms 링크 표시 -->
+            <a th:if="${hasAdminRole}" href="/realms" class="btn" style="background:#ff9800;color:white;">⚙️ Realms</a>
+            <form th:action="@{/logout}" method="post" style="display:inline"><button type="submit"
+                    class="btn-red">Logout</button></form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+server:
+  port: 8081
+
+keycloak:
+  client-id: demo-client
+  # PKCE 방식을 사용하므로 client-secret이 필요 없음
+  # client-secret: default-client-secret
+  auth-server-url: http://localhost:8080
+  admin:
+    username: admin
+    password: admin
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  sql:
+    init:
+      mode: always
+

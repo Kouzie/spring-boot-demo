@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: common-head('Board')}"></head>
+
+<body class="container">
+    <div th:replace="~{layout :: nav}"></div>
+    <div class="card">
+        <h3>Board</h3>
+        <p>Logged in as: <b th:text="${username}"></b></p>
+    </div>
+    <div class="card">
+        <input id="title" placeholder="Title">
+        <textarea id="content" placeholder="Content"></textarea>
+        <button onclick="add()">Post</button>
+    </div>
+    <div id="posts"></div>
+    <script>
+        const id = i => document.getElementById(i);
+        
+        // CSRF는 비활성화되어 있으므로 제거
+        const add = () => {
+            const title = id('title').value;
+            const content = id('content').value;
+            
+            if (!title || !content) {
+                alert('Title and content are required');
+                return;
+            }
+            
+            fetch('/posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            })
+            .then(r => {
+                if (r.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to create post:', r.status);
+                    alert('Failed to create post');
+                }
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                alert('Error creating post');
+            });
+        };
+        
+        const del = postId => {
+            if (!confirm('Delete this post?')) return;
+            
+            fetch(`/posts/${postId}`, { method: 'DELETE' })
+            .then(r => {
+                if (r.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to delete post:', r.status);
+                    alert('Failed to delete post');
+                }
+            })
+            .catch(e => {
+                console.error('Error:', e);
+                alert('Error deleting post');
+            });
+        };
+        
+        // 게시글 목록 로드
+        fetch('/posts')
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error(`HTTP error! status: ${r.status}`);
+                }
+                return r.json();
+            })
+            .then(posts => {
+                console.log('Posts:', posts);
+                
+                // posts가 배열인지 확인
+                const postsArray = Array.isArray(posts) ? posts : [];
+                
+                if (postsArray.length === 0) {
+                    id('posts').innerHTML = '<div class="card"><p>No posts yet. Create the first one!</p></div>';
+                } else {
+                    id('posts').innerHTML = postsArray.map(o => `
+                        <div class="card">
+                            <h3>${o.title || 'Untitled'}</h3>
+                            <p>${o.content || ''}</p>
+                            <small>By: ${o.author || 'Unknown'}</small>
+                            <button class="delete" onclick="del('${o.id}')">Del</button>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(e => {
+                console.error('Error loading posts:', e);
+                id('posts').innerHTML = '<div class="card"><p style="color:red;">Failed to load posts. Error: ' + e.message + '</p></div>';
+            });
+    </script>
+</body>
+
+</html>

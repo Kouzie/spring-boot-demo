@@ -1,0 +1,84 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background: #f4f4f4;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button,
+.btn,
+.btn-red,
+.btn-gray {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1.5;
+    color: white;
+    vertical-align: middle;
+}
+
+.btn {
+    background: #0084ff;
+}
+
+.btn-red {
+    background: #d93025;
+}
+
+.btn-gray {
+    background: #5f6368;
+}
+
+pre {
+    background: #eee;
+    padding: 10px;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.admin-info {
+    background: #fffde7;
+    padding: 10px;
+    border: 1px dashed #fbc02d;
+}

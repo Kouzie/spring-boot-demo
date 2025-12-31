@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: common-head('Profile')}"></head>
+
+<body class="container">
+    <div th:replace="~{layout :: nav}"></div>
+
+    <div class="card">
+        <h3>OIDC Token Information (Server-side)</h3>
+        <p><b>Username:</b> <span th:text="${username}"></span></p>
+        <p><b>Email:</b> <span th:text="${email}"></span></p>
+        <hr>
+        <h4>My Permissions (권한):</h4>
+        <div th:if="${authorities != null and !authorities.isEmpty()}" style="margin-bottom: 1rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                <span th:each="role : ${authorities}" 
+                      th:class="${role.contains(':') ? 'client-role' : 'realm-role'}"
+                      style="color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem;"
+                      th:style="${role.contains(':') ? 'background-color: #2196F3;' : 'background-color: #4CAF50;'}">
+                    <span th:text="${role}"></span>
+                </span>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background-color: #f0f0f0; border-radius: 4px; font-size: 0.85rem;">
+                <b>📋 권한 구분:</b>
+                <ul style="margin: 0.5rem 0 0 1.5rem; list-style: none; padding: 0;">
+                    <li style="margin-bottom: 0.25rem;">
+                        <span style="background-color: #4CAF50; color: white; padding: 0.15rem 0.5rem; border-radius: 8px; font-size: 0.75rem; margin-right: 0.5rem;">Realm Role</span>
+                        <span style="font-size: 0.85rem;">Realm 전체에 적용되는 역할</span>
+                    </li>
+                    <li style="margin-bottom: 0.25rem;">
+                        <span style="background-color: #2196F3; color: white; padding: 0.15rem 0.5rem; border-radius: 8px; font-size: 0.75rem; margin-right: 0.5rem;">Client Role</span>
+                        <span style="font-size: 0.85rem;">특정 Client에만 적용되는 역할 (형식: client-id:role-name)</span>
+                    </li>
+                </ul>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background-color: #e3f2fd; border-radius: 4px; font-size: 0.9rem;">
+                <b>📋 주요 권한 설명:</b>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li th:if="${#lists.contains(authorities, 'delete_any_post')}">
+                        <b>delete_any_post:</b> 모든 게시글 삭제 가능 (관리자 권한)
+                    </li>
+                    <li th:if="${#lists.contains(authorities, 'delete_own_post')}">
+                        <b>delete_own_post:</b> 자신의 게시글만 삭제 가능
+                    </li>
+                    <li th:if="${#lists.contains(authorities, 'create_post')}">
+                        <b>create_post:</b> 게시글 작성 가능
+                    </li>
+                    <li th:if="${#lists.contains(authorities, 'view_post')}">
+                        <b>view_post:</b> 게시글 조회 가능
+                    </li>
+                    <li th:if="${#lists.contains(authorities, 'offline_access')}">
+                        <b>offline_access:</b> Refresh token 발급 권한 (장기 세션 유지)
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div th:if="${authorities == null or authorities.isEmpty()}" style="color: #999; padding: 1rem; background-color: #f5f5f5; border-radius: 4px;">
+            <p>권한 정보가 없습니다.</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Keycloak에서 사용자에게 역할을 할당했는지 확인하세요.</p>
+        </div>
+        <hr>
+        <h4>Active Scopes (활성화된 스코프):</h4>
+        <div th:if="${scopes != null and !scopes.isEmpty()}" style="margin-bottom: 1rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                <span th:each="scope : ${scopes}" 
+                      style="background-color: #FF9800; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem;">
+                    <span th:text="${scope}"></span>
+                </span>
+            </div>
+            <div style="margin-top: 1rem; padding: 0.75rem; background-color: #fff3e0; border-radius: 4px; font-size: 0.85rem;">
+                <b>📋 Scope 설명:</b>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li th:if="${#lists.contains(scopes, 'openid')}">
+                        <b>openid:</b> OpenID Connect 인증 (필수)
+                    </li>
+                    <li th:if="${#lists.contains(scopes, 'profile')}">
+                        <b>profile:</b> 사용자 프로필 정보 (이름, 사용자명 등)
+                    </li>
+                    <li th:if="${#lists.contains(scopes, 'email')}">
+                        <b>email:</b> 이메일 주소 및 이메일 검증 상태
+                    </li>
+                    <li th:if="${#lists.contains(scopes, 'offline_access')}">
+                        <b>offline_access:</b> Refresh Token 발급 권한
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div th:if="${scopes == null or scopes.isEmpty()}" style="color: #999; padding: 1rem; background-color: #f5f5f5; border-radius: 4px;">
+            <p>Scope 정보가 없습니다.</p>
+        </div>
+        <hr>
+        <h4>All Claims in Token:</h4>
+        <ul>
+            <li th:each="claim : ${claims}">
+                <b th:text="${claim.key}"></b>: <span th:text="${claim.value}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card admin-info">
+        <h3>OIDC UserInfo Information (Client-side)</h3>
+        <div id="loading">Fetching user details...</div>
+        <div id="user-content" style="display:none;">
+            <p><b>Subject (ID):</b> <span id="user-sub"></span></p>
+            <p><b>Username:</b> <span id="user-username"></span></p>
+            <p><b>Email:</b> <span id="user-email"></span></p>
+            <p><b>Full Name:</b> <span id="user-name"></span></p>
+            <p><b>Email Verified:</b> <span id="user-email-verified"></span></p>
+            <div id="user-api-error" style="color:red; font-weight:bold;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/user/info')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('user-content').style.display = 'block';
+
+                    if (data.userInfo) {
+                        const u = data.userInfo;
+                        document.getElementById('user-sub').textContent = u.sub || 'N/A';
+                        document.getElementById('user-username').textContent = u.preferred_username || 'N/A';
+                        document.getElementById('user-email').textContent = u.email || 'N/A';
+                        document.getElementById('user-name').textContent = u.name || 'N/A';
+                        document.getElementById('user-email-verified').textContent = u.email_verified || false;
+                    } else if (data.apiError) {
+                        document.getElementById('user-api-error').textContent = 'API Error: ' + data.apiError;
+                    }
+                })
+                .catch(e => {
+                    document.getElementById('loading').textContent = 'Error: ' + e.message;
+                });
+        });
+    </script>
+</body>
+
+</html>

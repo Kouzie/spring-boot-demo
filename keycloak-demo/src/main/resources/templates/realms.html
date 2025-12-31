@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: common-head('Realms')}"></head>
+<body class="container">
+    <style>
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Modal Content */
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+    </style>
+    <div th:replace="~{layout :: nav}"></div>
+    
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h2 style="margin:0">Keycloak Realms</h2>
+            <div>
+                <button onclick="openModal()" class="btn">+ Create Realm</button>
+                <button onclick="loadRealms()" class="btn btn-gray" style="margin-left:10px">Refresh</button>
+            </div>
+        </div>
+        
+        <div id="message" style="margin-bottom:15px;padding:10px;border-radius:4px;display:none"></div>
+        <div id="loading" style="text-align:center;padding:20px;display:none">Loading realms...</div>
+        <div id="realmsList"></div>
+    </div>
+    
+    <!-- Create Realm Modal -->
+    <div id="createModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Create New Realm</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="createRealmForm" onsubmit="createRealm(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="realmName">Realm Name *</label>
+                        <input type="text" id="realmName" name="realmName" placeholder="Enter realm name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enabled" name="enabled" checked>
+                            <span>Enable realm on creation</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal()" class="btn btn-gray">Cancel</button>
+                    <button type="submit" class="btn">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Create Client Modal -->
+    <div id="createClientModal" class="modal-overlay" onclick="closeClientModalOnOverlay(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Create New Client</h3>
+                <button class="modal-close" onclick="closeClientModal()">&times;</button>
+            </div>
+            <form id="createClientForm" onsubmit="createClient(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="clientRealmName">Realm Name</label>
+                        <input type="text" id="clientRealmName" name="clientRealmName" readonly style="background:#f5f5f5">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientId">Client ID *</label>
+                        <input type="text" id="clientId" name="clientId" placeholder="Enter client ID" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeClientModal()" class="btn btn-gray">Cancel</button>
+                    <button type="submit" class="btn">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const id = el => document.getElementById(el);
+        
+        window.onload = () => loadRealms();
+        
+        async function loadRealms() {
+            const realmsList = id('realmsList');
+            const loading = id('loading');
+            const message = id('message');
+            
+            message.style.display = 'none';
+            loading.style.display = 'block';
+            realmsList.innerHTML = '';
+            
+            try {
+                const response = await fetch('/admin/keycloak/realms');
+                if (!response.ok) throw new Error('Failed to load realms');
+                
+                const realms = await response.json();
+                loading.style.display = 'none';
+                
+                if (realms.length === 0) {
+                    realmsList.innerHTML = '<p style="text-align:center;padding:20px;color:#666">No realms found. Create your first realm!</p>';
+                    return;
+                }
+                
+                let html = '<table style="width:100%;border-collapse:collapse">';
+                html += '<thead><tr style="background:#f8f9fa;border-bottom:2px solid #ddd">';
+                html += '<th style="padding:12px;text-align:left">Realm Name</th>';
+                html += '<th style="padding:12px;text-align:left">Status</th>';
+                html += '<th style="padding:12px;text-align:right">Actions</th>';
+                html += '</tr></thead><tbody>';
+                
+                realms.forEach(realm => {
+                    const realmName = realm.realm || realm.name || 'Unknown';
+                    const enabled = realm.enabled !== false;
+                    const isMaster = realmName === 'master';
+                    
+                    html += '<tr style="border-bottom:1px solid #ddd">';
+                    html += `<td style="padding:12px"><strong>${realmName}</strong></td>`;
+                    html += `<td style="padding:12px">`;
+                    html += enabled ? '<span style="color:#28a745;font-weight:bold">● Enabled</span>' : '<span style="color:#dc3545;font-weight:bold">○ Disabled</span>';
+                    html += '</td>';
+                    html += '<td style="padding:12px;text-align:right">';
+                    html += `<button onclick="openClientModal('${realmName}')" class="btn" style="margin-right:8px">+ Create Client</button>`;
+                    if (!isMaster) {
+                        html += `<button onclick="deleteRealm('${realmName}')" class="btn btn-red">Delete</button>`;
+                    } else {
+                        html += '<span style="color:#666;font-size:12px">System Realm</span>';
+                    }
+                    html += '</td>';
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                realmsList.innerHTML = html;
+            } catch (error) {
+                loading.style.display = 'none';
+                showMessage('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        function openModal() {
+            const modal = id('createModal');
+            modal.classList.add('active');
+            id('realmName').focus();
+        }
+        
+        function closeModal() {
+            const modal = id('createModal');
+            modal.classList.remove('active');
+            id('createRealmForm').reset();
+            id('message').style.display = 'none';
+        }
+        
+        function closeModalOnOverlay(event) {
+            if (event.target === id('createModal')) {
+                closeModal();
+            }
+        }
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (id('createModal').classList.contains('active')) {
+                    closeModal();
+                }
+                if (id('createClientModal').classList.contains('active')) {
+                    closeClientModal();
+                }
+            }
+        });
+        
+        async function createRealm(event) {
+            event.preventDefault();
+            const realmName = id('realmName').value;
+            const enabled = id('enabled').checked;
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            
+            id('message').style.display = 'none';
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch('/admin/keycloak/realm', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({realm: realmName, enabled: enabled})
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`✅ ${result.message}`, 'success');
+                    id('createRealmForm').reset();
+                    closeModal();
+                    setTimeout(() => loadRealms(), 500);
+                } else {
+                    throw new Error(result.message || 'Failed to create realm');
+                }
+            } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Create';
+            }
+        }
+        
+        async function deleteRealm(realmName) {
+            if (!confirm(`Are you sure you want to delete realm '${realmName}'? This action cannot be undone.`)) return;
+            
+            id('message').style.display = 'none';
+            
+            try {
+                const response = await fetch(`/admin/keycloak/realm/${encodeURIComponent(realmName)}`, {method: 'DELETE'});
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`✅ ${result.message}`, 'success');
+                    setTimeout(() => loadRealms(), 1000);
+                } else {
+                    throw new Error(result.message || 'Failed to delete realm');
+                }
+            } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const message = id('message');
+            message.style.display = 'block';
+            message.textContent = text;
+            if (type === 'success') {
+                message.style.backgroundColor = '#d4edda';
+                message.style.color = '#155724';
+                message.style.border = '1px solid #c3e6cb';
+            } else {
+                message.style.backgroundColor = '#f8d7da';
+                message.style.color = '#721c24';
+                message.style.border = '1px solid #f5c6cb';
+            }
+        }
+        
+        function openClientModal(realmName) {
+            const modal = id('createClientModal');
+            id('clientRealmName').value = realmName;
+            modal.classList.add('active');
+            id('clientId').focus();
+        }
+        
+        function closeClientModal() {
+            const modal = id('createClientModal');
+            modal.classList.remove('active');
+            id('createClientForm').reset();
+            id('message').style.display = 'none';
+        }
+        
+        function closeClientModalOnOverlay(event) {
+            if (event.target === id('createClientModal')) {
+                closeClientModal();
+            }
+        }
+        
+        async function createClient(event) {
+            event.preventDefault();
+            const realmName = id('clientRealmName').value;
+            const clientId = id('clientId').value;
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            
+            id('message').style.display = 'none';
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating...';
+            
+            try {
+                const response = await fetch(`/admin/keycloak/realm/${encodeURIComponent(realmName)}/client`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({clientId: clientId})
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`✅ ${result.message}`, 'success');
+                    id('createClientForm').reset();
+                    closeClientModal();
+                } else {
+                    throw new Error(result.message || 'Failed to create client');
+                }
+            } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Create';
+            }
+        }
+    </script>
+</body>
+</html>
