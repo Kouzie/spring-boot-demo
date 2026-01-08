@@ -139,7 +139,7 @@ public class PageController {
                 OAuth2AuthenticationToken oauth2AuthToken = (OAuth2AuthenticationToken) authentication;
                 if (oauth2AuthToken.getAuthorities() != null && !oauth2AuthToken.getAuthorities().isEmpty()) {
                     for (GrantedAuthority authority : oauth2AuthToken.getAuthorities()) {
-                        scopes.add(authority.getAuthority());
+                        if (authority.getAuthority().startsWith("SCOPE_")) scopes.add(authority.getAuthority());
                     }
                 }
             }
