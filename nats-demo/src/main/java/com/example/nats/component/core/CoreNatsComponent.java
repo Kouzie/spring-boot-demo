@@ -1,21 +1,26 @@
-package com.example.nats.component;
+package com.example.nats.component.core;
 
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
-import io.nats.client.MessageHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class NatsComponent {
+public class CoreNatsComponent {
 
     private final Connection natsConnection;
     private final Dispatcher dispatcher;
 
-    public NatsComponent(Connection connection, MessageHandler messageHandler) {
+    @Autowired(required = false)
+    public CoreNatsComponent(Connection connection, CoreNatsCustomMessageHandler messageHandler) {
         this.natsConnection = connection;
-        this.dispatcher = natsConnection.createDispatcher(messageHandler);
+        if (messageHandler != null) {
+            this.dispatcher = natsConnection.createDispatcher(messageHandler);
+        } else {
+            this.dispatcher = natsConnection.createDispatcher();
+        }
     }
 
     /**
@@ -27,6 +32,7 @@ public class NatsComponent {
         natsConnection.publish(topic, message.getBytes());
     }
 
+    // replyTo 는 core nats 에만 있는 개념
     public void publish(String subject, String message, String replyTo) {
         natsConnection.publish(subject, replyTo, message.getBytes());
     }

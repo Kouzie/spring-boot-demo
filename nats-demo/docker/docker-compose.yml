@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  nats:
+    image: nats:2.9.15
+    container_name: nats-server
+    ports:
+      - "4222:4222"  # Client port
+      - "8222:8222"  # HTTP monitoring port
+      - "6222:6222"  # Cluster port
+    volumes:
+      - ./etc/nats:/etc/nats
+      - nats-jetstream-data:/data/jetstream
+    command:
+      - --http_port=8222
+      - -c=/etc/nats/default.conf
+    restart: unless-stopped
+
+volumes:
+  nats-jetstream-data:

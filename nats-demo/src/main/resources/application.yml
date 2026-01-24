@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    # active: sync
+    active: async
+
+nats:
+  core:
+    uri: nats://localhost:4222
+    username: nats_user
+    password: nats_password

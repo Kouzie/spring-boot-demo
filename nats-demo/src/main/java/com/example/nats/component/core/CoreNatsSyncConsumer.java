@@ -1,11 +1,11 @@
-package com.example.nats.component;
+package com.example.nats.component.core;
 
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import io.nats.client.MessageHandler;
 import io.nats.client.Subscription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -15,20 +15,21 @@ import jakarta.annotation.PreDestroy;
 /**
  * subscription.nextMessage 를 통해 주기적으로 메세지를 가져오는 방법
  * 잘 사용하지 않고 대부분 Dispatcher 방식을 사용함
- * */
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class NatsSyncConsumer {
+@Profile("sync")
+public class CoreNatsSyncConsumer {
 
     private final Connection natsConnection;
-    private final MessageHandler messageHandler;
+    private final CoreNatsCustomMessageHandler messageHandler;
     private Subscription subscription;
     private MessageHandlerThread thread;
 
     @PostConstruct
     private void init() {
-        String subject = "default.subject";
+        String subject = "core.nats.subject";
         String queue = "default.queue";
         if (StringUtils.hasText(queue)) {
             subscription = natsConnection.subscribe(subject, queue);
@@ -45,7 +46,6 @@ public class NatsSyncConsumer {
         subscription.unsubscribe();
         thread.interrupt();
     }
-
 
     public class MessageHandlerThread extends Thread {
 

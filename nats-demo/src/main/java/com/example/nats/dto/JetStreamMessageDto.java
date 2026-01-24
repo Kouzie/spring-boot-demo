@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class NatsSubscribeDto {
+public class JetStreamMessageDto {
     private String subject;
-    private boolean autoAck = true;
+    private String message;
 }
