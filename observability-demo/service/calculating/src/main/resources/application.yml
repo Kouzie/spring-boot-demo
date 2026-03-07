@@ -1,13 +1,29 @@
 server:
-  port: 8080
-  version: '@project.version@'
+  port: 8081
+  version: "@project.version@" # gradle 의 프로젝트 버전을 주입받음
+
 spring:
   application:
     name: service-calculating
   profiles:
-    active: dev
+    active:
+      - common
+      - dev
   config:
     import: "classpath:application-common.yml"
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin
+
+management:
+  metrics:
+    mongo:
+      command:
+        enabled: true # MongoDB 명령어 실행 메트릭 활성화
+    distribution:
+      percentiles-histogram:
+        mongodb.driver.commands: true # MongoDB 명령어 실행 시간에 대한 히스토그램 생성 (슬로우 쿼리 감지용)
+
 service:
   greeting:
-    url: http://gretting:8080
+    url: ${SERVICE_GREETING_URL}

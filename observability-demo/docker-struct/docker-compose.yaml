@@ -4,13 +4,26 @@ x-logging: &custom-fluentbit-log
   options:
     fluentd-address: ${FLUENTD_ADDRESS:-127.0.0.1:24224} # host pc 의 ip 를 지정
     tag: "{{.Name}}"
+
 x-logging-file: &custom-file-log
   driver: "json-file"
   options:
     max-size: "10m" # 로그 파일 하나의 최대 크기 (10MB)
     max-file: "3" # 최대 30MB
+
+x-java-opts: &default-java-opts
+  JAVA_OPTS: >-
+    -XX:+UseContainerSupport
+    -XX:MaxRAMPercentage=75.0
+    -XX:+UseG1GC
+    -XX:InitiatingHeapOccupancyPercent=30
+    -XX:+ExitOnOutOfMemoryError
+    -Dfile.encoding=UTF-8
+    -Dspring.profiles.active=dev
+
 services:
-  # ClickHouse - 로그, 메트릭, 트레이스 저장소
+  # --- Infrastructure Services ---
+  
   clickhouse:
     image: clickhouse/clickhouse-server:25.3
     container_name: monitoring-clickhouse
@@ -44,6 +57,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     expose:
       - 3100
+
   fluentbit:
     image: fluent/fluent-bit:3.2.4
     container_name: monitoring-fluentbit
@@ -56,6 +70,7 @@ services:
       - ./etc/monitoring/parser-custom.conf:/fluent-bit/etc/parser-custom.conf
     depends_on:
       - loki
+
   grafana:
     image: grafana/grafana:11.3.2
     container_name: monitoring-grafana
@@ -66,11 +81,13 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
     ports:
-      - "3000:3000" # reverse proxy 설정으로 인해 nginx 를 통해서만 접근 가능
+      - "3000:3000"
     volumes:
       - grafana:/var/lib/grafana
       # https://github.com/grafana/grafana/blob/main/conf/defaults.ini
       - ./etc/monitoring/grafana.ini:/etc/grafana/grafana.ini
+      - ./etc/monitoring/provisioning:/etc/grafana/provisioning
+
   prometheus:
     image: prom/prometheus:v3.1.0
     container_name: monitoring-prometheus
@@ -80,6 +97,8 @@ services:
       - ./etc/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./etc/monitoring/rules.yml:/etc/prometheus/rules.yml
       - prometheus:/prometheus
+    ports:
+      - "9090:9090"
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.retention.time=30d" # 30일 유지
@@ -109,11 +128,73 @@ services:
     volumes:
       - ./etc/monitoring/template:/etc/alertmanager/template
       - ./etc/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.101.0
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    networks:
+      default:
+        aliases:
+          - otel
+    volumes:
+      - ./etc/monitoring/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317" # Internal OTLP gRPC
+      - "4318" # Internal OTLP HTTP
+
+  # --- Application Services ---
+
+  greeting:
+    image: observability-demo/service/greeting:0.0.1-SNAPSHOT
+    container_name: service-greeting
+    logging: *custom-file-log
+    ports:
+      - "8080:8080"
+    expose:
+      - "9000"
+    environment:
+      <<: *default-java-opts
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      SERVICE_CALCULATING_URL: http://calculating:8081
+      MANAGEMENT_SERVER_PORT: 9000
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      - otel-collector
+      - mysql
+
+  calculating:
+    image: observability-demo/service/calculating:0.0.1-SNAPSHOT
+    container_name: service-calculating
+    logging: *custom-file-log
+    ports:
+      - "8081:8081"
+    expose:
+      - "9000"
+    environment:
+      <<: *default-java-opts
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGODB_USER: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGODB_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      SERVICE_GREETING_URL: http://greeting:8080
+      MANAGEMENT_SERVER_PORT: 9000
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      - otel-collector
+      - mongodb
+
+  # --- Database Services ---
+
   mongodb:
-    image: mongo:6.0
-    container_name: demo-mongo
+    image: mongo:8.2.3
+    container_name: db-mongodb
     restart: always
-    logging: *custom-fluentbit-log # 앵커를 참조
+    logging: *custom-file-log
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -122,6 +203,49 @@ services:
       - "27017:27017"
     volumes:
       - mongodb:/data/db
+
+  mysql:
+    image: mysql:8.0
+    container_name: db-mysql
+    restart: always
+    logging: *custom-file-log
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+
+  # --- Database Exporters ---
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.16.0
+    container_name: monitoring-mysql-exporter
+    command:
+      - "--mysqld.address=mysql:3306"
+      - "--mysqld.username=${MYSQL_USER}"
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: "${MYSQL_PASSWORD}"
+    logging: *custom-file-log
+    depends_on:
+      - mysql
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40.0
+    container_name: monitoring-mongodb-exporter
+    restart: always
+    ports:
+      - "9216"
+    environment:
+      MONGODB_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/admin?authSource=admin"
+    depends_on:
+      - mongodb
+    logging: *custom-file-log
+    command:
+      - "--collect-all"
 volumes:
   clickhouse:
     name: demo-clickhouse
@@ -135,4 +259,5 @@ volumes:
     name: demo-grafana
   mongodb:
     name: demo-mongodb
-
+  mysql:
+    name: demo-mysql

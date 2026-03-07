@@ -1,28 +1,26 @@
-logging:
-  level:
-    root: INFO
 management:
   server:
-    port: 9000
+    port: ${MANAGEMENT_SERVER_PORT:9000}
   endpoints:
     web:
       exposure:
-        include: prometheus, health, info, threaddump
+        include: prometheus, health, info, threaddump # 외부에 노출할 actuator 엔드포인트 목록
   metrics:
     tags:
-      application: ${spring.application.name}
+      application: ${spring.application.name} # 모든 메트릭에 application 이름을 태그로 붙여 Prometheus 에서 구분 가능하게 함
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true # HTTP 요청 처리 시간에 대한 히스토그램 생성 (Grafana 에서 P99 등 계산 시 사용)
   prometheus:
     metrics:
       export:
-        enabled: true # prometheus 의 메트릭 생성 여부
+        enabled: true # Prometheus 형식으로 메트릭 수집 허용
   endpoint:
     prometheus:
-      enabled: true # endpoint 활성화 여부
+      enabled: true # /actuator/prometheus 엔드포인트 활성화
     threaddump:
-      enabled: true
-metrics:
-  distribution:
-    percentiles-histogram:
-      http.server.requests: true
-  tracing:
-    enabled: true
+      enabled: true # 스레드 덤프 확인 엔드포인트 활성화
+
+logging:
+  level:
+    root: INFO

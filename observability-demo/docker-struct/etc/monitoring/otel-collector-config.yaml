@@ -6,16 +6,28 @@ receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: 'greeting-service'
+        - job_name: "greeting-service"
           scrape_interval: 15s
-          metrics_path: '/actuator/prometheus'
+          metrics_path: "/actuator/prometheus"
           static_configs:
-            - targets: [ 'greeting:9000' ]
-        - job_name: 'calculating-service'
+            - targets: ["greeting:9000"]
+        - job_name: "calculating-service"
           scrape_interval: 15s
-          metrics_path: '/actuator/prometheus'
+          metrics_path: "/actuator/prometheus"
           static_configs:
-            - targets: [ 'calculating:9000' ]
+            - targets: ["calculating:9000"]
+        - job_name: "mysql-exporter"
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["mysql-exporter:9104"]
+        - job_name: "mongodb-exporter"
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["mongodb-exporter:9216"]
+        - job_name: "loki"
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["loki:3100"]
 
 processors:
   batch:
@@ -52,14 +64,14 @@ exporters:
 service:
   pipelines:
     traces:
-      receivers: [ otlp ]
-      processors: [ batch ]
-      exporters: [ otlp, clickhouse ]
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp, clickhouse]
     logs:
-      receivers: [ otlp ]
-      processors: [ batch ]
-      exporters: [ loki, clickhouse ]
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki, clickhouse]
     metrics:
-      receivers: [ prometheus ]
-      processors: [ batch ]
-      exporters: [ prometheus, clickhouse ]
+      receivers: [prometheus]
+      processors: [batch]
+      exporters: [prometheus, clickhouse]

@@ -36,6 +36,9 @@ public class OpenTelemetryConfig {
     @Value("${server.version:1.0.0}")
     private String serviceVersion;
 
+    @Value("${OTEL_EXPORTER_OTLP_ENDPOINT}")
+    private String otelEndpoint;
+
     @Bean
     public Resource resource() {
         String instanceId = getInstanceId();
@@ -43,8 +46,7 @@ public class OpenTelemetryConfig {
                 AttributeKey.stringKey("service.namespace"), "demo-service",
                 AttributeKey.stringKey("service.name"), appName,
                 AttributeKey.stringKey("service.instance.id"), instanceId,
-                AttributeKey.stringKey("service.version"), serviceVersion
-        );
+                AttributeKey.stringKey("service.version"), serviceVersion);
         return Resource.getDefault().merge(Resource.create(attributes));
     }
 
@@ -59,7 +61,7 @@ public class OpenTelemetryConfig {
     @Bean
     public SdkTracerProvider sdkTracerProvider(Resource resource) {
         OtlpGrpcSpanExporter exporter = OtlpGrpcSpanExporter.builder()
-                .setEndpoint("http://otel:4317")
+                .setEndpoint(otelEndpoint)
                 .setTimeout(Duration.ofSeconds(5))
                 .build();
         return SdkTracerProvider.builder()
@@ -72,7 +74,7 @@ public class OpenTelemetryConfig {
     @Bean
     public SdkLoggerProvider sdkLoggerProvider(Resource resource) {
         OtlpGrpcLogRecordExporter exporter = OtlpGrpcLogRecordExporter.builder()
-                .setEndpoint("http://otel:4317")
+                .setEndpoint(otelEndpoint)
                 .setTimeout(Duration.ofSeconds(5))
                 .build();
         return SdkLoggerProvider.builder()
@@ -87,9 +89,7 @@ public class OpenTelemetryConfig {
         ContextPropagators propagators = ContextPropagators.create(
                 TextMapPropagator.composite(
                         W3CTraceContextPropagator.getInstance(),
-                        W3CBaggagePropagator.getInstance()
-                )
-        );
+                        W3CBaggagePropagator.getInstance()));
 
         OpenTelemetrySdk otel = OpenTelemetrySdk.builder()
                 // .setMeterProvider(sdkMeterProvider) prometheus 대체

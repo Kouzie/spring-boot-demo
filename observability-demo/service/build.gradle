@@ -9,11 +9,31 @@ subprojects {
     dependencies {
         implementation project(':observability-demo:common')
     }
+
+    project(':observability-demo:service:greeting') {
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+            implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:1.0.3'
+            implementation 'com.mysql:mysql-connector-j'
+        }
+    }
+
+    project(':observability-demo:service:calculating') {
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+        }
+    }
     jib {
         dockerClient.executable = "/usr/local/bin/docker"
 
         from {
-            image = "openjdk:21-jdk-slim"
+            image = "eclipse-temurin:21-jre-jammy"
+            platforms {
+                platform {
+                    architecture = 'arm64'
+                    os = 'linux'
+                }
+            }
         }
         to {
             image = "observability-demo/service/${project.name}:${project.version}"
